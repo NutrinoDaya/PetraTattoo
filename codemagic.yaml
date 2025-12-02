@@ -34,9 +34,6 @@ workflows:
     name: React Native iOS (Manual Code Signing Required)
     max_build_duration: 120
     instance_type: mac_mini_m1
-    triggering:
-      events:
-        - manual
     environment:
       ios_signing:
         distribution_type: development
