@@ -7,8 +7,8 @@ workflows:
       app_store_connect: codemagic
     environment:
       ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.petratattoo.app
+        distribution_type: development
+        bundle_identifier: com.myapp
       vars:
         XCODE_WORKSPACE: "ios/PetraTatto.xcworkspace"
         XCODE_SCHEME: "PetraTatto"
@@ -60,7 +60,7 @@ workflows:
       groups:
         - google_play
       vars:
-        PACKAGE_NAME: "com.petratattoo.app"
+        PACKAGE_NAME: "com.myapp"
       node: 18.17.0
       java: 11
     scripts:
