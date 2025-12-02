@@ -15,6 +15,14 @@ workflows:
       - name: Install npm dependencies
         script: |
           npm install --legacy-peer-deps
+      - name: Create JavaScript bundle
+        script: |
+          npx react-native bundle \
+            --platform ios \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output ios/main.jsbundle \
+            --assets-dest ios
       - name: Install CocoaPods dependencies
         script: |
           cd ios
