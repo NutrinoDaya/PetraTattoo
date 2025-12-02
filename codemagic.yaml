@@ -15,14 +15,6 @@ workflows:
       - name: Install npm dependencies
         script: |
           npm install --legacy-peer-deps
-      - name: Create JavaScript bundle
-        script: |
-          npx react-native bundle \
-            --platform ios \
-            --dev false \
-            --entry-file index.js \
-            --bundle-output ios/main.jsbundle \
-            --assets-dest ios
       - name: Install CocoaPods dependencies
         script: |
           cd ios
@@ -32,7 +24,7 @@ workflows:
           xcodebuild -workspace "$XCODE_WORKSPACE" \
             -scheme "$XCODE_SCHEME" \
             -sdk iphonesimulator \
-            -configuration Debug \
+            -configuration Release \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
