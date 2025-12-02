@@ -5,9 +5,9 @@ workflows:
     instance_type: mac_mini_m1
     environment:
       vars:
-        XCODE_WORKSPACE: "ios/PetraTatto.xcworkspace"
-        XCODE_SCHEME: "PetraTatto"
-        XCODE_PROJECT: "ios/PetraTatto.xcodeproj"
+        XCODE_WORKSPACE: "ios/PetraTatoo.xcworkspace"
+        XCODE_SCHEME: "PetraTatoo"
+        XCODE_PROJECT: "ios/PetraTatoo.xcodeproj"
       node: 18.17.0
       xcode: latest
       cocoapods: default
