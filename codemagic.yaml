@@ -1,37 +1,6 @@
 workflows:
-  react-native-android:
-    name: React Native Android
-    max_build_duration: 120
-    instance_type: linux_x2
-    environment:
-      vars:
-        PACKAGE_NAME: "com.myapp"
-      node: 18.17.0
-      java: 17
-    scripts:
-      - name: Install npm dependencies
-        script: |
-          npm install
-      - name: Set Android SDK location
-        script: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
-      - name: Build Android release
-        script: |
-          cd android
-          ./gradlew assembleRelease
-    artifacts:
-      - android/app/build/outputs/**/*.apk
-      - android/app/build/outputs/**/mapping.txt
-    publishing:
-      email:
-        recipients:
-          - m.daya.nutrino@gmail.com
-        notify:
-          success: true
-          failure: true
-
   react-native-ios:
-    name: React Native iOS (Manual Code Signing Required)
+    name: React Native iOS
     max_build_duration: 120
     instance_type: mac_mini_m1
     environment:
