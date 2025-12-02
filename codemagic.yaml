@@ -1,10 +1,42 @@
 workflows:
+  react-native-android:
+    name: React Native Android
+    max_build_duration: 120
+    instance_type: linux_x2
+    environment:
+      vars:
+        PACKAGE_NAME: "com.myapp"
+      node: 18.17.0
+      java: 17
+    scripts:
+      - name: Install npm dependencies
+        script: |
+          npm install
+      - name: Set Android SDK location
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+      - name: Build Android release
+        script: |
+          cd android
+          ./gradlew assembleRelease
+    artifacts:
+      - android/app/build/outputs/**/*.apk
+      - android/app/build/outputs/**/mapping.txt
+    publishing:
+      email:
+        recipients:
+          - m.daya.nutrino@gmail.com
+        notify:
+          success: true
+          failure: true
+
   react-native-ios:
-    name: React Native iOS
+    name: React Native iOS (Manual Code Signing Required)
     max_build_duration: 120
     instance_type: mac_mini_m1
-    integrations:
-      app_store_connect: codemagic
+    triggering:
+      events:
+        - manual
     environment:
       ios_signing:
         distribution_type: development
@@ -39,53 +71,7 @@ workflows:
     publishing:
       email:
         recipients:
-          - your-email@example.com
+          - m.daya.nutrino@gmail.com
         notify:
           success: true
           failure: true
-      app_store_connect:
-        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
-        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
-        submit_to_testflight: false
-        submit_to_app_store: false
-  
-  react-native-android:
-    name: React Native Android
-    max_build_duration: 120
-    instance_type: mac_mini_m1
-    environment:
-      android_signing:
-        - keystore_reference
-      groups:
-        - google_play
-      vars:
-        PACKAGE_NAME: "com.myapp"
-      node: 18.17.0
-      java: 11
-    scripts:
-      - name: Install npm dependencies
-        script: |
-          npm install
-      - name: Set Android SDK location
-        script: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/android/local.properties"
-      - name: Build Android release
-        script: |
-          cd android
-          ./gradlew assembleRelease
-    artifacts:
-      - android/app/build/outputs/**/*.apk
-      - android/app/build/outputs/**/*.aab
-      - android/app/build/outputs/**/mapping.txt
-    publishing:
-      email:
-        recipients:
-          - your-email@example.com
-        notify:
-          success: true
-          failure: true
-      google_play:
-        credentials: $GPLAY_SERVICE_ACCOUNT_CREDENTIALS
-        track: internal
-        submit_as_draft: true
