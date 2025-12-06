@@ -15,22 +15,45 @@ workflows:
       - name: Install npm dependencies
         script: |
           npm install --legacy-peer-deps
+      - name: Clear all caches
+        script: |
+          rm -rf $TMPDIR/metro-* || true
+          rm -rf $TMPDIR/haste-* || true
+          rm -rf $TMPDIR/react-* || true
+          watchman watch-del-all || true
+          rm -rf node_modules/.cache || true
       - name: Install CocoaPods dependencies
         script: |
           cd ios
           pod install
-      - name: Build iOS app (unsigned for testing)
+      - name: Build iOS app (unsigned for device)
         script: |
+          export SKIP_BUNDLING=0
+          export RCT_METRO_PORT=8081
+          npx react-native bundle \
+            --platform ios \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output ios/main.jsbundle \
+            --assets-dest ios \
+            --reset-cache
           xcodebuild -workspace "$XCODE_WORKSPACE" \
             -scheme "$XCODE_SCHEME" \
-            -sdk iphonesimulator \
+            -sdk iphoneos \
             -configuration Release \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
+            SKIP_BUNDLING=1 \
             clean build
+      - name: Package IPA
+        script: |
+          mkdir -p Payload
+          APP_PATH=$(find $HOME/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
+          cp -r "$APP_PATH" Payload/
+          zip -r PetraTatoo.ipa Payload
     artifacts:
-      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+      - "*.ipa"
       - /tmp/xcodebuild_logs/*.log
     publishing:
       email:
