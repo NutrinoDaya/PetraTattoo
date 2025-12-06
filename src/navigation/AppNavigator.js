@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../utils/authContext';
 import { colors } from '../styles/theme';
+import { normalize } from '../utils/responsive';
 
 // Screens
 import LoginScreen from '../screens/LoginScreen';
@@ -46,7 +47,7 @@ const AdminTabs = () => {
           borderTopColor: colors.border,
           borderTopWidth: 1,
           paddingBottom: 5,
-          height: 60,
+          height: normalize(60),
         },
         headerStyle: {
           backgroundColor: colors.surface,

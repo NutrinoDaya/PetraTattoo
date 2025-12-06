@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { colors, spacing, typography, borderRadius, shadows } from './theme';
+import { normalize, isTablet } from '../utils/responsive';
 
 export const globalStyles = StyleSheet.create({
   container: {
@@ -9,6 +10,12 @@ export const globalStyles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     backgroundColor: colors.background,
+  },
+  responsiveContainer: {
+    flex: 1,
+    width: isTablet() ? '70%' : '100%',
+    alignSelf: 'center',
+    maxWidth: 800,
   },
   safeArea: {
     flex: 1,
@@ -59,7 +66,7 @@ export const globalStyles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     color: colors.text,
-    fontSize: 16,
+    fontSize: normalize(16),
     marginVertical: spacing.xs,
   },
   inputLabel: {
@@ -72,7 +79,7 @@ export const globalStyles = StyleSheet.create({
   },
   errorText: {
     color: colors.error,
-    fontSize: 14,
+    fontSize: normalize(14),
     marginTop: spacing.xs,
   },
   

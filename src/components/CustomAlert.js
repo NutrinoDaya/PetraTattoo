@@ -7,6 +7,8 @@ import {
   Modal,
   Dimensions,
 } from 'react-native';
+import { colors, spacing, typography } from '../styles/theme';
+import { normalize } from '../utils/responsive';
 
 const { width } = Dimensions.get('window');
 
@@ -65,6 +67,8 @@ const CustomAlert = ({
                   <Text style={[
                     styles.buttonText,
                     button.style === 'destructive' && styles.destructiveButtonText,
+                    // If it's the right button (usually confirm) or single button, use black text
+                    (buttons.length === 1 || (index === buttons.length - 1 && buttons.length > 1)) && styles.primaryButtonText
                   ]}>
                     {button.text}
                   </Text>
@@ -75,7 +79,7 @@ const CustomAlert = ({
                 style={[styles.button, styles.singleButton]}
                 onPress={onClose}
               >
-                <Text style={styles.buttonText}>OK</Text>
+                <Text style={[styles.buttonText, styles.primaryButtonText]}>OK</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -91,42 +95,42 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: spacing.xl,
   },
   alertContainer: {
-    backgroundColor: '#2a2a2a',
-    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderRadius: normalize(12),
     borderWidth: 2,
-    borderColor: '#FFD700',
+    borderColor: colors.primary,
     width: '100%',
-    maxWidth: 320,
+    maxWidth: normalize(320),
     overflow: 'hidden',
-    shadowColor: '#FFD700',
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
   header: {
-    backgroundColor: '#FFD700',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
   },
   title: {
-    fontSize: 18,
+    fontSize: normalize(18),
     fontWeight: 'bold',
     color: '#000',
     textAlign: 'center',
   },
   messageContainer: {
-    paddingVertical: 20,
-    paddingHorizontal: 20,
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.lg,
   },
   message: {
-    fontSize: 16,
-    color: '#fff',
+    fontSize: normalize(16),
+    color: colors.text,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: normalize(22),
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -135,31 +139,36 @@ const styles = StyleSheet.create({
   },
   button: {
     flex: 1,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
     backgroundColor: '#3a3a3a',
     borderRightWidth: 1,
     borderRightColor: '#444',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   singleButton: {
     borderRightWidth: 0,
-    backgroundColor: '#FFD700',
+    backgroundColor: colors.primary,
   },
   leftButton: {
     // Keep default styling
   },
   rightButton: {
     borderRightWidth: 0,
-    backgroundColor: '#FFD700',
+    backgroundColor: colors.primary,
   },
   destructiveButton: {
-    backgroundColor: '#cc3333',
+    backgroundColor: colors.error,
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: normalize(16),
     fontWeight: '600',
-    color: '#fff',
+    color: colors.text,
     textAlign: 'center',
+  },
+  primaryButtonText: {
+    color: '#000',
   },
   destructiveButtonText: {
     color: '#fff',

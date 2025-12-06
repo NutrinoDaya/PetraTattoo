@@ -7,13 +7,15 @@ import {
   TextInput,
   Modal,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { apiService } from '../../services/apiService';
-import { colors } from '../../styles/theme';
+import { colors, spacing } from '../../styles/theme';
 import { globalStyles } from '../../styles/globalStyles';
 import AppHeader from '../../components/AppHeader';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { normalize, isTablet } from '../../utils/responsive';
 
 const PaymentsScreen = () => {
   const [payments, setPayments] = useState([]);
@@ -143,75 +145,77 @@ const PaymentsScreen = () => {
     <View style={globalStyles.container}>
       <AppHeader title="Manage Payments" />
       
-      <TouchableOpacity
-        style={[globalStyles.button, { marginHorizontal: 20, marginBottom: 20 }]}
-        onPress={handleCreatePayment}
-      >
-        <Ionicons name="add" size={20} color={colors.surface} />
-        <Text style={globalStyles.buttonText}>New Payment</Text>
-      </TouchableOpacity>
+      <View style={styles.contentContainer}>
+        <TouchableOpacity
+          style={[globalStyles.button, styles.addButton]}
+          onPress={handleCreatePayment}
+        >
+          <Ionicons name="add" size={normalize(20)} color={colors.surface} />
+          <Text style={globalStyles.buttonText}>New Payment</Text>
+        </TouchableOpacity>
 
-      <ScrollView style={{ flex: 1 }}>
-        {payments.map((payment) => (
-          <View key={payment.id} style={globalStyles.card}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <View style={{ flex: 1 }}>
-                <Text style={globalStyles.cardTitle}>{payment.customer_name}</Text>
-                <Text style={globalStyles.cardSubtitle}>Artist: {payment.artist_name}</Text>
-                <Text style={globalStyles.cardText}>Type: {payment.tattoo_type}</Text>
-                <Text style={globalStyles.cardText}>Amount: {formatCurrency(payment.amount)}</Text>
-                <Text style={globalStyles.cardText}>Tips: {formatCurrency(payment.tip_amount)}</Text>
-                <Text style={globalStyles.cardText}>Payment: {payment.payment_method}</Text>
-                <Text style={globalStyles.cardText}>Date: {formatDate(payment.date)}</Text>
-                
-                <View style={{ 
-                  flexDirection: 'row', 
-                  justifyContent: 'space-between',
-                  marginTop: 10,
-                  paddingTop: 10,
-                  borderTopWidth: 1,
-                  borderTopColor: colors.border,
-                }}>
-                  <View>
-                    <Text style={[globalStyles.cardText, { fontSize: 12 }]}>
-                      Shop Commission: {formatCurrency(payment.shop_commission)}
-                    </Text>
-                    <Text style={[globalStyles.cardText, { fontSize: 12 }]}>
-                      Artist Earnings: {formatCurrency(payment.artist_earnings)}
-                    </Text>
+        <ScrollView style={{ flex: 1 }}>
+          {payments.map((payment) => (
+            <View key={payment.id} style={globalStyles.card}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={globalStyles.cardTitle}>{payment.customer_name}</Text>
+                  <Text style={globalStyles.cardSubtitle}>Artist: {payment.artist_name}</Text>
+                  <Text style={globalStyles.cardText}>Type: {payment.tattoo_type}</Text>
+                  <Text style={globalStyles.cardText}>Amount: {formatCurrency(payment.amount)}</Text>
+                  <Text style={globalStyles.cardText}>Tips: {formatCurrency(payment.tip_amount)}</Text>
+                  <Text style={globalStyles.cardText}>Payment: {payment.payment_method}</Text>
+                  <Text style={globalStyles.cardText}>Date: {formatDate(payment.date)}</Text>
+                  
+                  <View style={{ 
+                    flexDirection: 'row', 
+                    justifyContent: 'space-between',
+                    marginTop: spacing.sm,
+                    paddingTop: spacing.sm,
+                    borderTopWidth: 1,
+                    borderTopColor: colors.border,
+                  }}>
+                    <View>
+                      <Text style={[globalStyles.cardText, { fontSize: normalize(12) }]}>
+                        Shop Commission: {formatCurrency(payment.shop_commission)}
+                      </Text>
+                      <Text style={[globalStyles.cardText, { fontSize: normalize(12) }]}>
+                        Artist Earnings: {formatCurrency(payment.artist_earnings)}
+                      </Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-              
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <TouchableOpacity
-                  onPress={() => handleEditPayment(payment)}
-                  style={[globalStyles.iconButton, { backgroundColor: colors.primary }]}
-                >
-                  <Ionicons name="create" size={16} color={colors.surface} />
-                </TouchableOpacity>
                 
-                <TouchableOpacity
-                  onPress={() => handleDeletePayment(payment)}
-                  style={[globalStyles.iconButton, { backgroundColor: colors.error }]}
-                >
-                  <Ionicons name="trash" size={16} color={colors.surface} />
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+                  <TouchableOpacity
+                    onPress={() => handleEditPayment(payment)}
+                    style={[globalStyles.iconButton, { backgroundColor: colors.primary }]}
+                  >
+                    <Ionicons name="create" size={normalize(16)} color={colors.surface} />
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    onPress={() => handleDeletePayment(payment)}
+                    style={[globalStyles.iconButton, { backgroundColor: colors.error }]}
+                  >
+                    <Ionicons name="trash" size={normalize(16)} color={colors.surface} />
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-          </View>
-        ))}
-        
-        {payments.length === 0 && (
-          <View style={globalStyles.emptyState}>
-            <Ionicons name="card-outline" size={64} color={colors.textMuted} />
-            <Text style={globalStyles.emptyStateTitle}>No Payments</Text>
-            <Text style={globalStyles.emptyStateText}>
-              Record your first payment to get started
-            </Text>
-          </View>
-        )}
-      </ScrollView>
+          ))}
+          
+          {payments.length === 0 && (
+            <View style={globalStyles.emptyState}>
+              <Ionicons name="card-outline" size={normalize(64)} color={colors.textMuted} />
+              <Text style={globalStyles.emptyStateTitle}>No Payments</Text>
+              <Text style={globalStyles.emptyStateText}>
+                Record your first payment to get started
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+      </View>
 
       {/* Payment Form Modal */}
       <Modal
@@ -226,110 +230,129 @@ const PaymentsScreen = () => {
             onBack={() => setModalVisible(false)}
           />
           
-          <ScrollView style={{ padding: 20 }}>
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Customer Name"
-              placeholderTextColor={colors.textMuted}
-              value={formData.customer_name}
-              onChangeText={(text) => setFormData({ ...formData, customer_name: text })}
-            />
-            
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Artist Name"
-              placeholderTextColor={colors.textMuted}
-              value={formData.artist_name}
-              onChangeText={(text) => setFormData({ ...formData, artist_name: text })}
-            />
-            
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Tattoo Type"
-              placeholderTextColor={colors.textMuted}
-              value={formData.tattoo_type}
-              onChangeText={(text) => setFormData({ ...formData, tattoo_type: text })}
-            />
-            
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Amount"
-              placeholderTextColor={colors.textMuted}
-              value={formData.amount}
-              onChangeText={(text) => setFormData({ ...formData, amount: text })}
-              keyboardType="numeric"
-            />
-            
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Tip Amount"
-              placeholderTextColor={colors.textMuted}
-              value={formData.tip_amount}
-              onChangeText={(text) => setFormData({ ...formData, tip_amount: text })}
-              keyboardType="numeric"
-            />
-            
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Date (YYYY-MM-DD)"
-              placeholderTextColor={colors.textMuted}
-              value={formData.date}
-              onChangeText={(text) => setFormData({ ...formData, date: text })}
-            />
-            
-            <View style={{ marginBottom: 20 }}>
-              <Text style={[globalStyles.cardText, { marginBottom: 10 }]}>Payment Method:</Text>
-              {['cash', 'card'].map((method) => (
-                <TouchableOpacity
-                  key={method}
-                  style={[
-                    globalStyles.radioOption,
-                    formData.payment_method === method && globalStyles.radioOptionSelected
-                  ]}
-                  onPress={() => setFormData({ ...formData, payment_method: method })}
-                >
-                  <Text style={[
-                    globalStyles.radioText,
-                    formData.payment_method === method && globalStyles.radioTextSelected
-                  ]}>
-                    {method.charAt(0).toUpperCase() + method.slice(1)}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+          <ScrollView style={{ flex: 1 }}>
+            <View style={styles.formContainer}>
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Customer Name"
+                placeholderTextColor={colors.textMuted}
+                value={formData.customer_name}
+                onChangeText={(text) => setFormData({ ...formData, customer_name: text })}
+              />
+              
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Artist Name"
+                placeholderTextColor={colors.textMuted}
+                value={formData.artist_name}
+                onChangeText={(text) => setFormData({ ...formData, artist_name: text })}
+              />
+              
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Tattoo Type"
+                placeholderTextColor={colors.textMuted}
+                value={formData.tattoo_type}
+                onChangeText={(text) => setFormData({ ...formData, tattoo_type: text })}
+              />
+              
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Amount"
+                placeholderTextColor={colors.textMuted}
+                value={formData.amount}
+                onChangeText={(text) => setFormData({ ...formData, amount: text })}
+                keyboardType="numeric"
+              />
+              
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Tip Amount"
+                placeholderTextColor={colors.textMuted}
+                value={formData.tip_amount}
+                onChangeText={(text) => setFormData({ ...formData, tip_amount: text })}
+                keyboardType="numeric"
+              />
+              
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Date (YYYY-MM-DD)"
+                placeholderTextColor={colors.textMuted}
+                value={formData.date}
+                onChangeText={(text) => setFormData({ ...formData, date: text })}
+              />
+              
+              <View style={{ marginBottom: spacing.lg }}>
+                <Text style={[globalStyles.cardText, { marginBottom: spacing.sm }]}>Payment Method:</Text>
+                {['cash', 'card'].map((method) => (
+                  <TouchableOpacity
+                    key={method}
+                    style={[
+                      globalStyles.radioOption,
+                      formData.payment_method === method && globalStyles.radioOptionSelected
+                    ]}
+                    onPress={() => setFormData({ ...formData, payment_method: method })}
+                  >
+                    <Text style={[
+                      globalStyles.radioText,
+                      formData.payment_method === method && globalStyles.radioTextSelected
+                    ]}>
+                      {method.charAt(0).toUpperCase() + method.slice(1)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              
+              <TextInput
+                style={[globalStyles.input, { height: normalize(80) }]}
+                placeholder="Notes (optional)"
+                placeholderTextColor={colors.textMuted}
+                value={formData.notes}
+                onChangeText={(text) => setFormData({ ...formData, notes: text })}
+                multiline
+                textAlignVertical="top"
+              />
+              
+              <TouchableOpacity
+                style={globalStyles.button}
+                onPress={handleSavePayment}
+              >
+                <Text style={globalStyles.buttonText}>
+                  {editingPayment ? 'Update Payment' : 'Create Payment'}
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[globalStyles.button, globalStyles.secondaryButton]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={[globalStyles.buttonText, globalStyles.secondaryButtonText]}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
             </View>
-            
-            <TextInput
-              style={[globalStyles.input, { height: 80 }]}
-              placeholder="Notes (optional)"
-              placeholderTextColor={colors.textMuted}
-              value={formData.notes}
-              onChangeText={(text) => setFormData({ ...formData, notes: text })}
-              multiline
-              textAlignVertical="top"
-            />
-            
-            <TouchableOpacity
-              style={globalStyles.button}
-              onPress={handleSavePayment}
-            >
-              <Text style={globalStyles.buttonText}>
-                {editingPayment ? 'Update Payment' : 'Create Payment'}
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[globalStyles.button, globalStyles.secondaryButton]}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={[globalStyles.buttonText, globalStyles.secondaryButtonText]}>
-                Cancel
-              </Text>
-            </TouchableOpacity>
           </ScrollView>
         </View>
       </Modal>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  contentContainer: {
+    flex: 1,
+    width: isTablet() ? '70%' : '100%',
+    alignSelf: 'center',
+  },
+  addButton: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  formContainer: {
+    padding: spacing.lg,
+    width: isTablet() ? '60%' : '100%',
+    alignSelf: 'center',
+  },
+});
 
 export default PaymentsScreen;

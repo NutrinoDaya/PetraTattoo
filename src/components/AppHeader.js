@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../utils/authContext';
 import { globalStyles } from '../styles/globalStyles';
 import { colors, spacing, typography } from '../styles/theme';
+import { normalize, isTablet } from '../utils/responsive';
 import PetraLogo from './PetraLogo';
 
 const AppHeader = ({ 
@@ -28,27 +29,29 @@ const AppHeader = ({
 
   return (
     <View style={[styles.container, style]}>
-      {showLogo && (
-        <View style={styles.logoContainer}>
-          <PetraLogo size="small" />
+      <View style={styles.contentRow}>
+        {showLogo && (
+          <View style={styles.logoContainer}>
+            <PetraLogo size="small" />
+          </View>
+        )}
+        
+        <View style={styles.titleContainer}>
+          {title && <Text style={styles.title}>{title}</Text>}
+          {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
         </View>
-      )}
-      
-      <View style={styles.titleContainer}>
-        {title && <Text style={styles.title}>{title}</Text>}
-        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-      </View>
 
-      {showLogout && (
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Ionicons name="log-out-outline" size={24} color={colors.primary} />
-        </TouchableOpacity>
-      )}
+        {showLogout && (
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <Ionicons name="log-out-outline" size={normalize(24)} color={colors.primary} />
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.surface,
     paddingTop: spacing.lg,
@@ -57,13 +60,20 @@ const styles = {
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
+  contentRow: {
+    flexDirection: isTablet() ? 'row' : 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: spacing.sm,
+    marginBottom: isTablet() ? 0 : spacing.sm,
+    marginRight: isTablet() ? spacing.md : 0,
   },
   titleContainer: {
-    flex: 1,
     alignItems: 'center',
+    flex: isTablet() ? 1 : 0,
   },
   title: {
     ...typography.h3,
@@ -77,10 +87,10 @@ const styles = {
   },
   logoutButton: {
     position: 'absolute',
-    right: spacing.md,
-    top: spacing.lg + spacing.sm,
+    right: 0,
+    top: isTablet() ? 'auto' : spacing.sm,
     padding: spacing.sm,
   },
-};
+});
 
 export default AppHeader;

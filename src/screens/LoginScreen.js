@@ -9,13 +9,13 @@ import {
   Platform,
   ScrollView,
   StatusBar,
+  StyleSheet,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../utils/authContext';
 import { globalStyles } from '../styles/globalStyles';
-import { colors } from '../styles/theme';
-import { globalStyles } from '../styles/globalStyles';
 import { colors, spacing, typography } from '../styles/theme';
+import { normalize, isTablet, wp } from '../utils/responsive';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PetraLogo from '../components/PetraLogo';
 
@@ -65,7 +65,7 @@ const LoginScreen = ({ navigation }) => {
           >
             {/* Logo Section */}
             <View style={styles.logoContainer}>
-              <PetraLogo size="large" showText={true} />
+              <PetraLogo size={isTablet() ? "xlarge" : "large"} showText={true} />
             </View>
 
             {/* Login Form */}
@@ -73,7 +73,7 @@ const LoginScreen = ({ navigation }) => {
               <Text style={styles.formTitle}>Sign In</Text>
               
               <View style={styles.inputContainer}>
-                <Icon name="person-outline" size={20} color={colors.textMuted} style={styles.inputIcon} />
+                <Icon name="person-outline" size={normalize(20)} color={colors.textMuted} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
                   placeholder="Username"
@@ -86,7 +86,7 @@ const LoginScreen = ({ navigation }) => {
               </View>
 
               <View style={styles.inputContainer}>
-                <Icon name="lock-closed-outline" size={20} color={colors.textMuted} style={styles.inputIcon} />
+                <Icon name="lock-closed-outline" size={normalize(20)} color={colors.textMuted} style={styles.inputIcon} />
                 <TextInput
                   style={[styles.input, { flex: 1 }]}
                   placeholder="Password"
@@ -102,7 +102,7 @@ const LoginScreen = ({ navigation }) => {
                 >
                   <Icon
                     name={showPassword ? "eye-outline" : "eye-off-outline"}
-                    size={20}
+                    size={normalize(20)}
                     color={colors.textMuted}
                   />
                 </TouchableOpacity>
@@ -128,8 +128,8 @@ const LoginScreen = ({ navigation }) => {
                     style={[globalStyles.secondaryButton, styles.quickButton]}
                     onPress={() => handleQuickLogin('admin')}
                   >
-                    <Icon name="shield-checkmark" size={16} color={colors.primary} />
-                    <Text style={[globalStyles.buttonText, { color: colors.primary, marginLeft: 8 }]}>
+                    <Icon name="shield-checkmark" size={normalize(16)} color={colors.primary} />
+                    <Text style={[globalStyles.buttonText, { color: colors.primary, marginLeft: normalize(8) }]}>
                       Admin
                     </Text>
                   </TouchableOpacity>
@@ -138,8 +138,8 @@ const LoginScreen = ({ navigation }) => {
                     style={[globalStyles.secondaryButton, styles.quickButton]}
                     onPress={() => handleQuickLogin('worker')}
                   >
-                    <Icon name="brush" size={16} color={colors.primary} />
-                    <Text style={[globalStyles.buttonText, { color: colors.primary, marginLeft: 8 }]}>
+                    <Icon name="brush" size={normalize(16)} color={colors.primary} />
+                    <Text style={[globalStyles.buttonText, { color: colors.primary, marginLeft: normalize(8) }]}>
                       Artist
                     </Text>
                   </TouchableOpacity>
@@ -161,16 +161,18 @@ const LoginScreen = ({ navigation }) => {
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xxl,
+    alignItems: 'center', // Center content horizontally
   },
   logoContainer: {
     alignItems: 'center',
     marginBottom: spacing.xxl,
+    width: '100%',
   },
   appSubtitle: {
     ...typography.bodySecondary,
@@ -178,9 +180,11 @@ const styles = {
   },
   formContainer: {
     backgroundColor: colors.card,
-    borderRadius: 16,
+    borderRadius: normalize(16),
     padding: spacing.lg,
     marginBottom: spacing.xxl,
+    width: isTablet() ? '60%' : '100%', // Limit width on tablet
+    maxWidth: 600, // Max width for very large screens
   },
   formTitle: {
     ...typography.h2,
@@ -191,7 +195,7 @@ const styles = {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surface,
-    borderRadius: 12,
+    borderRadius: normalize(12),
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     marginBottom: spacing.md,
@@ -204,7 +208,7 @@ const styles = {
   input: {
     flex: 1,
     color: colors.text,
-    fontSize: 16,
+    fontSize: normalize(16),
     paddingVertical: spacing.xs,
   },
   eyeIcon: {
@@ -237,6 +241,7 @@ const styles = {
   },
   footer: {
     alignItems: 'center',
+    width: '100%',
   },
   footerText: {
     ...typography.caption,
@@ -246,8 +251,8 @@ const styles = {
   versionText: {
     ...typography.caption,
     color: colors.textMuted,
-    fontSize: 12,
+    fontSize: normalize(12),
   },
-};
+});
 
 export default LoginScreen;

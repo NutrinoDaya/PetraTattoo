@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Image, Text } from 'react-native';
 import { spacing, typography } from '../styles/theme';
+import { normalize } from '../utils/responsive';
 
 const PetraLogo = ({ 
   size = 'large', 
@@ -10,14 +11,14 @@ const PetraLogo = ({
   const getSizeStyle = () => {
     switch (size) {
       case 'small':
-        return { width: 80, height: 48 };
+        return { width: normalize(80), height: normalize(48) };
       case 'medium':
-        return { width: 120, height: 72 };
+        return { width: normalize(120), height: normalize(72) };
       case 'large':
       default:
-        return { width: 200, height: 120 };
+        return { width: normalize(200), height: normalize(120) };
       case 'xlarge':
-        return { width: 250, height: 150 };
+        return { width: normalize(250), height: normalize(150) };
     }
   };
 

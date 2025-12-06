@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { globalStyles } from '../../styles/globalStyles';
+import { normalize } from '../../utils/responsive';
 import AppHeader from '../../components/AppHeader';
 
 const AdminDashboard = () => {
@@ -11,9 +12,11 @@ const AdminDashboard = () => {
         subtitle="Shop Overview & Analytics"
       />
       <ScrollView style={{ flex: 1 }}>
-        <View style={[globalStyles.center, { paddingTop: 100 }]}>
-          <Text style={globalStyles.heading}>Admin Dashboard</Text>
-          <Text style={globalStyles.body}>Coming soon...</Text>
+        <View style={globalStyles.responsiveContainer}>
+          <View style={[globalStyles.center, { paddingTop: normalize(100) }]}>
+            <Text style={globalStyles.heading}>Admin Dashboard</Text>
+            <Text style={globalStyles.body}>Coming soon...</Text>
+          </View>
         </View>
       </ScrollView>
     </View>

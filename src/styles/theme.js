@@ -1,3 +1,5 @@
+import { normalize } from '../utils/responsive';
+
 // Color palette inspired by the MMA design theme
 export const colors = {
   // Dark theme base
@@ -40,60 +42,60 @@ export const colors = {
 };
 
 export const spacing = {
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
+  xs: normalize(4),
+  sm: normalize(8),
+  md: normalize(16),
+  lg: normalize(24),
+  xl: normalize(32),
+  xxl: normalize(48),
 };
 
 export const typography = {
   h1: {
-    fontSize: 32,
+    fontSize: normalize(32),
     fontWeight: 'bold',
     color: colors.text,
   },
   h2: {
-    fontSize: 28,
+    fontSize: normalize(28),
     fontWeight: 'bold',
     color: colors.text,
   },
   h3: {
-    fontSize: 24,
+    fontSize: normalize(24),
     fontWeight: '600',
     color: colors.text,
   },
   h4: {
-    fontSize: 20,
+    fontSize: normalize(20),
     fontWeight: '600',
     color: colors.text,
   },
   body: {
-    fontSize: 16,
+    fontSize: normalize(16),
     color: colors.text,
   },
   bodySecondary: {
-    fontSize: 16,
+    fontSize: normalize(16),
     color: colors.textSecondary,
   },
   caption: {
-    fontSize: 14,
+    fontSize: normalize(14),
     color: colors.textMuted,
   },
   button: {
-    fontSize: 16,
+    fontSize: normalize(16),
     fontWeight: '600',
     color: colors.text,
   },
 };
 
 export const borderRadius = {
-  sm: 4,
-  md: 8,
-  lg: 12,
-  xl: 16,
-  round: 50,
+  sm: normalize(4),
+  md: normalize(8),
+  lg: normalize(12),
+  xl: normalize(16),
+  round: normalize(50),
 };
 
 export const shadows = {

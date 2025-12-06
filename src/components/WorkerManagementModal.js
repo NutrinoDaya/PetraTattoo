@@ -13,6 +13,8 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { dbService } from '../services/localTattooService';
+import { colors, spacing, typography } from '../styles/theme';
+import { normalize, isTablet } from '../utils/responsive';
 
 const WorkerManagementModal = ({ visible, onClose, onUpdate }) => {
   const [workers, setWorkers] = useState([]);
@@ -125,14 +127,14 @@ const WorkerManagementModal = ({ visible, onClose, onUpdate }) => {
     return (
       <Modal visible={visible} animationType="slide">
         <SafeAreaView style={styles.container}>
-          <ActivityIndicator size="large" color="#FFD700" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </SafeAreaView>
       </Modal>
     );
   }
 
   return (
-    <Modal visible={visible} animationType="slide">
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose}>
@@ -144,52 +146,54 @@ const WorkerManagementModal = ({ visible, onClose, onUpdate }) => {
           </TouchableOpacity>
         </View>
 
-        {workers.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No artists added yet</Text>
-            <TouchableOpacity
-              style={styles.emptyButton}
-              onPress={handleAddWorker}
-            >
-              <Text style={styles.emptyButtonText}>Add First Artist</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <FlatList
-            data={workers}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.workerCard}>
-                <View style={styles.workerInfo}>
-                  <Text style={styles.workerName}>{item.full_name}</Text>
-                  <Text style={styles.workerDetail}>{item.specialties}</Text>
-                  <Text style={styles.workerDetail}>{item.email}</Text>
-                  {item.paper && (
-                    <Text style={styles.workerDetail}>📄 {item.paper}</Text>
-                  )}
+        <View style={styles.contentContainer}>
+          {workers.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No artists added yet</Text>
+              <TouchableOpacity
+                style={styles.emptyButton}
+                onPress={handleAddWorker}
+              >
+                <Text style={styles.emptyButtonText}>Add First Artist</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <FlatList
+              data={workers}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.workerCard}>
+                  <View style={styles.workerInfo}>
+                    <Text style={styles.workerName}>{item.full_name}</Text>
+                    <Text style={styles.workerDetail}>{item.specialties}</Text>
+                    <Text style={styles.workerDetail}>{item.email}</Text>
+                    {item.paper && (
+                      <Text style={styles.workerDetail}>📄 {item.paper}</Text>
+                    )}
+                  </View>
+                  <View style={styles.workerActions}>
+                    <TouchableOpacity
+                      style={styles.editButton}
+                      onPress={() => handleEditWorker(item)}
+                    >
+                      <Text style={styles.editButtonText}>✏️</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => handleDelete(item)}
+                    >
+                      <Text style={styles.deleteButtonText}>🗑️</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-                <View style={styles.workerActions}>
-                  <TouchableOpacity
-                    style={styles.editButton}
-                    onPress={() => handleEditWorker(item)}
-                  >
-                    <Text style={styles.editButtonText}>✏️</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => handleDelete(item)}
-                  >
-                    <Text style={styles.deleteButtonText}>🗑️</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-            contentContainerStyle={styles.listContent}
-          />
-        )}
+              )}
+              contentContainerStyle={styles.listContent}
+            />
+          )}
+        </View>
 
         {/* Add/Edit Worker Modal */}
-        <Modal visible={showAddModal} animationType="slide">
+        <Modal visible={showAddModal} animationType="slide" presentationStyle="pageSheet">
           <SafeAreaView style={styles.formContainer}>
             <View style={styles.formHeader}>
               <TouchableOpacity onPress={() => setShowAddModal(false)}>
@@ -201,72 +205,74 @@ const WorkerManagementModal = ({ visible, onClose, onUpdate }) => {
               <View style={{ width: 60 }} />
             </View>
 
-            <ScrollView style={styles.form}>
-              <Text style={styles.label}>Full Name *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g., Carlos Rodriguez"
-                value={formData.full_name}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, full_name: text })
-                }
-                placeholderTextColor="#999"
-              />
+            <View style={styles.contentContainer}>
+              <ScrollView style={styles.form}>
+                <Text style={styles.label}>Full Name *</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g., Carlos Rodriguez"
+                  value={formData.full_name}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, full_name: text })
+                  }
+                  placeholderTextColor={colors.textMuted}
+                />
 
-              <Text style={styles.label}>Username *</Text>
-              <TextInput
-                style={[styles.input, editingWorker && styles.inputDisabled]}
-                placeholder="e.g., carlos"
-                value={formData.username}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, username: text })
-                }
-                editable={!editingWorker}
-                placeholderTextColor="#999"
-              />
+                <Text style={styles.label}>Username *</Text>
+                <TextInput
+                  style={[styles.input, editingWorker && styles.inputDisabled]}
+                  placeholder="e.g., carlos"
+                  value={formData.username}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, username: text })
+                  }
+                  editable={!editingWorker}
+                  placeholderTextColor={colors.textMuted}
+                />
 
-              <Text style={styles.label}>Email *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g., carlos@PetraTatoo.com"
-                value={formData.email}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, email: text })
-                }
-                keyboardType="email-address"
-                placeholderTextColor="#999"
-              />
+                <Text style={styles.label}>Email *</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g., carlos@PetraTatoo.com"
+                  value={formData.email}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, email: text })
+                  }
+                  keyboardType="email-address"
+                  placeholderTextColor={colors.textMuted}
+                />
 
-              <Text style={styles.label}>Specialties</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g., Black & Gray, Realism"
-                value={formData.specialties}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, specialties: text })
-                }
-                placeholderTextColor="#999"
-              />
+                <Text style={styles.label}>Specialties</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g., Black & Gray, Realism"
+                  value={formData.specialties}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, specialties: text })
+                  }
+                  placeholderTextColor={colors.textMuted}
+                />
 
-              <Text style={styles.label}>License/Paper</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g., License #001"
-                value={formData.paper}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, paper: text })
-                }
-                placeholderTextColor="#999"
-              />
+                <Text style={styles.label}>License/Paper</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g., License #001"
+                  value={formData.paper}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, paper: text })
+                  }
+                  placeholderTextColor={colors.textMuted}
+                />
 
-              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                <Text style={styles.saveButtonText}>
-                  {editingWorker ? '✏️ Update Artist' : '➕ Add Artist'}
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                  <Text style={styles.saveButtonText}>
+                    {editingWorker ? '✏️ Update Artist' : '➕ Add Artist'}
+                  </Text>
+                </TouchableOpacity>
 
-              <View style={{ height: 20 }} />
-            </ScrollView>
+                <View style={{ height: 20 }} />
+              </ScrollView>
+            </View>
           </SafeAreaView>
         </Modal>
       </SafeAreaView>
@@ -277,64 +283,70 @@ const WorkerManagementModal = ({ visible, onClose, onUpdate }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: colors.background,
+  },
+  contentContainer: {
+    flex: 1,
+    width: isTablet() ? '70%' : '100%',
+    alignSelf: 'center',
+    maxWidth: 800,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#000',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#FFD700',
+    borderBottomColor: colors.primary,
   },
   title: {
-    fontSize: 20,
+    fontSize: normalize(20),
     fontWeight: 'bold',
-    color: '#FFD700',
+    color: colors.primary,
   },
   closeButton: {
-    color: '#FF6B6B',
-    fontSize: 16,
+    color: colors.error,
+    fontSize: normalize(16),
   },
   addButton: {
-    color: '#00D084',
-    fontSize: 16,
+    color: colors.success,
+    fontSize: normalize(16),
     fontWeight: 'bold',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
   },
   emptyText: {
-    color: '#999',
-    fontSize: 16,
-    marginBottom: 20,
+    color: colors.textMuted,
+    fontSize: normalize(16),
+    marginBottom: spacing.lg,
   },
   emptyButton: {
-    backgroundColor: '#FFD700',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 30,
+    backgroundColor: colors.primary,
+    borderRadius: normalize(8),
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
   },
   emptyButtonText: {
     color: '#000',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: normalize(16),
   },
   listContent: {
-    padding: 15,
+    padding: spacing.md,
   },
   workerCard: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#FFD700',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 10,
+    borderColor: colors.primary,
+    borderRadius: normalize(8),
+    padding: spacing.md,
+    marginBottom: spacing.sm,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -342,95 +354,95 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   workerName: {
-    fontSize: 18,
+    fontSize: normalize(18),
     fontWeight: 'bold',
-    color: '#FFD700',
-    marginBottom: 5,
+    color: colors.primary,
+    marginBottom: spacing.xs,
   },
   workerDetail: {
-    fontSize: 13,
-    color: '#999',
+    fontSize: normalize(13),
+    color: colors.textMuted,
     marginBottom: 3,
   },
   workerActions: {
     flexDirection: 'row',
-    gap: 10,
+    gap: spacing.sm,
   },
   editButton: {
-    backgroundColor: '#FFD700',
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    backgroundColor: colors.primary,
+    borderRadius: normalize(6),
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     justifyContent: 'center',
     alignItems: 'center',
   },
   editButtonText: {
-    fontSize: 16,
+    fontSize: normalize(16),
   },
   deleteButton: {
-    backgroundColor: '#FF6B6B',
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    backgroundColor: colors.error,
+    borderRadius: normalize(6),
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     justifyContent: 'center',
     alignItems: 'center',
   },
   deleteButtonText: {
-    fontSize: 16,
+    fontSize: normalize(16),
   },
   formContainer: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: colors.background,
   },
   formHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#000',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#FFD700',
+    borderBottomColor: colors.primary,
   },
   formTitle: {
-    fontSize: 18,
+    fontSize: normalize(18),
     fontWeight: 'bold',
-    color: '#FFD700',
+    color: colors.primary,
   },
   form: {
     flex: 1,
-    padding: 20,
+    padding: spacing.lg,
   },
   label: {
-    color: '#FFD700',
-    fontSize: 14,
+    color: colors.primary,
+    fontSize: normalize(14),
     fontWeight: 'bold',
-    marginTop: 15,
-    marginBottom: 8,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
   },
   input: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#FFD700',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    color: '#fff',
-    fontSize: 16,
+    borderColor: colors.primary,
+    borderRadius: normalize(8),
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    color: colors.text,
+    fontSize: normalize(16),
   },
   inputDisabled: {
     opacity: 0.6,
   },
   saveButton: {
-    backgroundColor: '#FFD700',
-    borderRadius: 8,
-    paddingVertical: 15,
+    backgroundColor: colors.primary,
+    borderRadius: normalize(8),
+    paddingVertical: spacing.md,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: spacing.lg,
   },
   saveButtonText: {
     color: '#000',
-    fontSize: 16,
+    fontSize: normalize(16),
     fontWeight: 'bold',
   },
 });

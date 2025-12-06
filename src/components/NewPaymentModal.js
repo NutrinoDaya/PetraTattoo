@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 import CustomAlert from './CustomAlert';
 import { dbService } from '../services/localTattooService';
+import { colors, spacing, typography } from '../styles/theme';
+import { normalize, isTablet } from '../utils/responsive';
 
 const NewPaymentModal = ({ visible, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -174,14 +176,14 @@ const NewPaymentModal = ({ visible, onClose, onSave }) => {
     return (
       <Modal visible={visible} animationType="slide">
         <SafeAreaView style={styles.container}>
-          <ActivityIndicator size="large" color="#FFD700" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </SafeAreaView>
       </Modal>
     );
   }
 
   return (
-    <Modal visible={visible} animationType="slide">
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose}>
@@ -191,121 +193,123 @@ const NewPaymentModal = ({ visible, onClose, onSave }) => {
           <View style={{ width: 60 }} />
         </View>
 
-        <ScrollView style={styles.form}>
-          {/* Quick Select from Appointment */}
-          <Text style={styles.label}>Select from Appointment (Optional)</Text>
-          <TouchableOpacity
-            style={styles.pickerButton}
-            onPress={() => setShowAppointmentPicker(true)}
-          >
-            <Text style={styles.pickerButtonText}>
-              {selectedAppointment
-                ? `${selectedAppointment.customer_name} - ${selectedAppointment.tattoo_type}`
-                : 'Choose Appointment'}
-            </Text>
-          </TouchableOpacity>
+        <View style={styles.contentContainer}>
+          <ScrollView style={styles.form} contentContainerStyle={{ paddingBottom: spacing.xl }}>
+            {/* Quick Select from Appointment */}
+            <Text style={styles.label}>Select from Appointment (Optional)</Text>
+            <TouchableOpacity
+              style={styles.pickerButton}
+              onPress={() => setShowAppointmentPicker(true)}
+            >
+              <Text style={styles.pickerButtonText}>
+                {selectedAppointment
+                  ? `${selectedAppointment.customer_name} - ${selectedAppointment.tattoo_type}`
+                  : 'Choose Appointment'}
+              </Text>
+            </TouchableOpacity>
 
-          {/* Client Selection */}
-          <Text style={styles.label}>Select Client *</Text>
-          <TouchableOpacity
-            style={styles.pickerButton}
-            onPress={() => setShowClientPicker(true)}
-          >
-            <Text style={styles.pickerButtonText}>
-              {selectedClient ? selectedClient.full_name : 'Choose Client'}
-            </Text>
-          </TouchableOpacity>
+            {/* Client Selection */}
+            <Text style={styles.label}>Select Client *</Text>
+            <TouchableOpacity
+              style={styles.pickerButton}
+              onPress={() => setShowClientPicker(true)}
+            >
+              <Text style={styles.pickerButtonText}>
+                {selectedClient ? selectedClient.full_name : 'Choose Client'}
+              </Text>
+            </TouchableOpacity>
 
-          {/* Worker Selection */}
-          <Text style={styles.label}>Select Artist *</Text>
-          <TouchableOpacity
-            style={styles.pickerButton}
-            onPress={() => setShowWorkerPicker(true)}
-          >
-            <Text style={styles.pickerButtonText}>
-              {selectedWorker ? selectedWorker.full_name : 'Choose Artist'}
-            </Text>
-          </TouchableOpacity>
+            {/* Worker Selection */}
+            <Text style={styles.label}>Select Artist *</Text>
+            <TouchableOpacity
+              style={styles.pickerButton}
+              onPress={() => setShowWorkerPicker(true)}
+            >
+              <Text style={styles.pickerButtonText}>
+                {selectedWorker ? selectedWorker.full_name : 'Choose Artist'}
+              </Text>
+            </TouchableOpacity>
 
-          {/* Tattoo Type */}
-          <Text style={styles.label}>Tattoo Type *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., Black & Gray Sleeve"
-            value={formData.tattoo_type}
-            onChangeText={(text) => setFormData({ ...formData, tattoo_type: text })}
-            placeholderTextColor="#999"
-          />
+            {/* Tattoo Type */}
+            <Text style={styles.label}>Tattoo Type *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g., Black & Gray Sleeve"
+              value={formData.tattoo_type}
+              onChangeText={(text) => setFormData({ ...formData, tattoo_type: text })}
+              placeholderTextColor={colors.textMuted}
+            />
 
-          {/* Amount */}
-          <Text style={styles.label}>Amount ($) *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., 250"
-            value={formData.amount}
-            onChangeText={(text) => setFormData({ ...formData, amount: text })}
-            keyboardType="decimal-pad"
-            placeholderTextColor="#999"
-          />
+            {/* Amount */}
+            <Text style={styles.label}>Amount ($) *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g., 250"
+              value={formData.amount}
+              onChangeText={(text) => setFormData({ ...formData, amount: text })}
+              keyboardType="decimal-pad"
+              placeholderTextColor={colors.textMuted}
+            />
 
-          {/* Tip */}
-          <Text style={styles.label}>Tip ($)</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., 20"
-            value={formData.tip_amount}
-            onChangeText={(text) => setFormData({ ...formData, tip_amount: text })}
-            keyboardType="decimal-pad"
-            placeholderTextColor="#999"
-          />
+            {/* Tip */}
+            <Text style={styles.label}>Tip ($)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g., 20"
+              value={formData.tip_amount}
+              onChangeText={(text) => setFormData({ ...formData, tip_amount: text })}
+              keyboardType="decimal-pad"
+              placeholderTextColor={colors.textMuted}
+            />
 
-          {/* Payment Method */}
-          <Text style={styles.label}>Payment Method</Text>
-          <View style={styles.methodContainer}>
-            {['cash', 'card', 'transfer'].map((method) => (
-              <TouchableOpacity
-                key={method}
-                style={[
-                  styles.methodButton,
-                  formData.payment_method === method && styles.methodButtonActive,
-                ]}
-                onPress={() => setFormData({ ...formData, payment_method: method })}
-              >
-                <Text
+            {/* Payment Method */}
+            <Text style={styles.label}>Payment Method</Text>
+            <View style={styles.methodContainer}>
+              {['cash', 'card', 'transfer'].map((method) => (
+                <TouchableOpacity
+                  key={method}
                   style={[
-                    styles.methodButtonText,
-                    formData.payment_method === method && styles.methodButtonTextActive,
+                    styles.methodButton,
+                    formData.payment_method === method && styles.methodButtonActive,
                   ]}
+                  onPress={() => setFormData({ ...formData, payment_method: method })}
                 >
-                  {method.charAt(0).toUpperCase() + method.slice(1)}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+                  <Text
+                    style={[
+                      styles.methodButtonText,
+                      formData.payment_method === method && styles.methodButtonTextActive,
+                    ]}
+                  >
+                    {method.charAt(0).toUpperCase() + method.slice(1)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
 
 
-          {/* Notes */}
-          <Text style={styles.label}>Notes</Text>
-          <TextInput
-            style={[styles.input, { height: 80 }]}
-            placeholder="Additional notes..."
-            value={formData.notes}
-            onChangeText={(text) => setFormData({ ...formData, notes: text })}
-            multiline
-            placeholderTextColor="#999"
-          />
+            {/* Notes */}
+            <Text style={styles.label}>Notes</Text>
+            <TextInput
+              style={[styles.input, { height: normalize(80) }]}
+              placeholder="Additional notes..."
+              value={formData.notes}
+              onChangeText={(text) => setFormData({ ...formData, notes: text })}
+              multiline
+              placeholderTextColor={colors.textMuted}
+            />
 
-          {/* Save Button */}
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>💳 Record Payment</Text>
-          </TouchableOpacity>
+            {/* Save Button */}
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+              <Text style={styles.saveButtonText}>💳 Record Payment</Text>
+            </TouchableOpacity>
 
-          <View style={{ height: 20 }} />
-        </ScrollView>
+            <View style={{ height: 20 }} />
+          </ScrollView>
+        </View>
 
         {/* Appointment Picker Modal */}
-        <Modal visible={showAppointmentPicker} animationType="slide">
+        <Modal visible={showAppointmentPicker} animationType="slide" presentationStyle="pageSheet">
           <SafeAreaView style={styles.pickerContainer}>
             <View style={styles.pickerHeader}>
               <TouchableOpacity onPress={() => setShowAppointmentPicker(false)}>
@@ -334,7 +338,7 @@ const NewPaymentModal = ({ visible, onClose, onSave }) => {
         </Modal>
 
         {/* Client Picker Modal */}
-        <Modal visible={showClientPicker} animationType="slide">
+        <Modal visible={showClientPicker} animationType="slide" presentationStyle="pageSheet">
           <SafeAreaView style={styles.pickerContainer}>
             <View style={styles.pickerHeader}>
               <TouchableOpacity onPress={() => setShowClientPicker(false)}>
@@ -362,7 +366,7 @@ const NewPaymentModal = ({ visible, onClose, onSave }) => {
         </Modal>
 
         {/* Worker Picker Modal */}
-        <Modal visible={showWorkerPicker} animationType="slide">
+        <Modal visible={showWorkerPicker} animationType="slide" presentationStyle="pageSheet">
           <SafeAreaView style={styles.pickerContainer}>
             <View style={styles.pickerHeader}>
               <TouchableOpacity onPress={() => setShowWorkerPicker(false)}>
@@ -403,136 +407,143 @@ const NewPaymentModal = ({ visible, onClose, onSave }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: colors.background,
+  },
+  contentContainer: {
+    flex: 1,
+    width: isTablet() ? '70%' : '100%',
+    alignSelf: 'center',
+    maxWidth: 800,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#000',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#FFD700',
+    borderBottomColor: colors.primary,
   },
   title: {
-    fontSize: 20,
+    fontSize: normalize(20),
     fontWeight: 'bold',
-    color: '#FFD700',
+    color: colors.primary,
   },
   cancelButton: {
-    color: '#FF6B6B',
-    fontSize: 16,
+    color: colors.error,
+    fontSize: normalize(16),
   },
   form: {
     flex: 1,
-    padding: 20,
+    padding: spacing.lg,
   },
   label: {
-    color: '#FFD700',
-    fontSize: 14,
+    color: colors.primary,
+    fontSize: normalize(14),
     fontWeight: 'bold',
-    marginTop: 15,
-    marginBottom: 8,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
   },
   input: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#FFD700',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    color: '#fff',
-    fontSize: 16,
+    borderColor: colors.primary,
+    borderRadius: normalize(8),
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    color: colors.text,
+    fontSize: normalize(16),
   },
   pickerButton: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#FFD700',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
+    borderColor: colors.primary,
+    borderRadius: normalize(8),
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     justifyContent: 'center',
   },
   pickerButtonText: {
-    color: '#fff',
-    fontSize: 16,
+    color: colors.text,
+    fontSize: normalize(16),
   },
   methodContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 15,
+    marginBottom: spacing.md,
   },
   methodButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#FFD700',
-    borderRadius: 8,
-    paddingVertical: 10,
+    borderColor: colors.primary,
+    borderRadius: normalize(8),
+    paddingVertical: spacing.sm,
     alignItems: 'center',
     marginHorizontal: 5,
-    backgroundColor: '#2a2a2a',
+    backgroundColor: colors.surface,
   },
   methodButtonActive: {
-    backgroundColor: '#FFD700',
+    backgroundColor: colors.primary,
   },
   methodButtonText: {
-    color: '#FFD700',
+    color: colors.primary,
     fontWeight: 'bold',
+    fontSize: normalize(14),
   },
   methodButtonTextActive: {
     color: '#000',
   },
   saveButton: {
-    backgroundColor: '#FFD700',
-    borderRadius: 8,
-    paddingVertical: 15,
+    backgroundColor: colors.primary,
+    borderRadius: normalize(8),
+    paddingVertical: spacing.md,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: spacing.lg,
   },
   saveButtonText: {
     color: '#000',
-    fontSize: 16,
+    fontSize: normalize(16),
     fontWeight: 'bold',
   },
   pickerContainer: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: colors.background,
   },
   pickerHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#000',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#FFD700',
+    borderBottomColor: colors.primary,
   },
   pickerTitle: {
-    fontSize: 18,
+    fontSize: normalize(18),
     fontWeight: 'bold',
-    color: '#FFD700',
+    color: colors.primary,
   },
   pickerHeaderButton: {
-    color: '#FFD700',
-    fontSize: 16,
+    color: colors.primary,
+    fontSize: normalize(16),
     fontWeight: 'bold',
   },
   pickerItem: {
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: '#333',
   },
   pickerItemText: {
-    color: '#fff',
-    fontSize: 16,
+    color: colors.text,
+    fontSize: normalize(16),
     fontWeight: '500',
   },
   pickerItemSubtext: {
-    color: '#999',
-    fontSize: 14,
+    color: colors.textMuted,
+    fontSize: normalize(14),
     marginTop: 4,
   },
 });

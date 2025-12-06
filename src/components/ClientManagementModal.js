@@ -13,6 +13,8 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { dbService } from '../services/localTattooService';
+import { colors, spacing, typography } from '../styles/theme';
+import { normalize, isTablet } from '../utils/responsive';
 
 const ClientManagementModal = ({ visible, onClose, onUpdate }) => {
   const [clients, setClients] = useState([]);
@@ -126,14 +128,14 @@ const ClientManagementModal = ({ visible, onClose, onUpdate }) => {
     return (
       <Modal visible={visible} animationType="slide">
         <SafeAreaView style={styles.container}>
-          <ActivityIndicator size="large" color="#FFD700" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </SafeAreaView>
       </Modal>
     );
   }
 
   return (
-    <Modal visible={visible} animationType="slide">
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose}>
@@ -145,56 +147,56 @@ const ClientManagementModal = ({ visible, onClose, onUpdate }) => {
           </TouchableOpacity>
         </View>
 
-        {clients.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No clients registered yet</Text>
-            <TouchableOpacity
-              style={styles.emptyButton}
-              onPress={handleAddClient}
-            >
-              <Text style={styles.emptyButtonText}>Add First Client</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <FlatList
-            data={clients}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.clientCard}>
-                <View style={styles.clientInfo}>
-                  <Text style={styles.clientName}>{item.full_name}</Text>
-                  {item.email && (
-                    <Text style={styles.clientDetail}>📧 {item.email}</Text>
-                  )}
-                  {item.phone && (
-                    <Text style={styles.clientDetail}>📱 {item.phone}</Text>
-                  )}
-                  {item.notes && (
-                    <Text style={styles.clientDetail}>📝 {item.notes}</Text>
-                  )}
+        <View style={styles.contentContainer}>
+          {clients.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No clients added yet</Text>
+              <TouchableOpacity
+                style={styles.emptyButton}
+                onPress={handleAddClient}
+              >
+                <Text style={styles.emptyButtonText}>Add First Client</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <FlatList
+              data={clients}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.clientCard}>
+                  <View style={styles.clientInfo}>
+                    <Text style={styles.clientName}>{item.full_name}</Text>
+                    <Text style={styles.clientDetail}>{item.email}</Text>
+                    <Text style={styles.clientDetail}>{item.phone}</Text>
+                    {item.notes && (
+                      <Text style={styles.clientNotes} numberOfLines={1}>
+                        📝 {item.notes}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={styles.clientActions}>
+                    <TouchableOpacity
+                      style={styles.editButton}
+                      onPress={() => handleEditClient(item)}
+                    >
+                      <Text style={styles.editButtonText}>✏️</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => handleDelete(item)}
+                    >
+                      <Text style={styles.deleteButtonText}>🗑️</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-                <View style={styles.clientActions}>
-                  <TouchableOpacity
-                    style={styles.editButton}
-                    onPress={() => handleEditClient(item)}
-                  >
-                    <Text style={styles.editButtonText}>✏️</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => handleDelete(item)}
-                  >
-                    <Text style={styles.deleteButtonText}>🗑️</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-            contentContainerStyle={styles.listContent}
-          />
-        )}
+              )}
+              contentContainerStyle={styles.listContent}
+            />
+          )}
+        </View>
 
         {/* Add/Edit Client Modal */}
-        <Modal visible={showAddModal} animationType="slide">
+        <Modal visible={showAddModal} animationType="slide" presentationStyle="pageSheet">
           <SafeAreaView style={styles.formContainer}>
             <View style={styles.formHeader}>
               <TouchableOpacity onPress={() => setShowAddModal(false)}>
@@ -206,73 +208,75 @@ const ClientManagementModal = ({ visible, onClose, onUpdate }) => {
               <View style={{ width: 60 }} />
             </View>
 
-            <ScrollView style={styles.form}>
-              <Text style={styles.label}>Full Name *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g., Juan Perez"
-                value={formData.full_name}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, full_name: text })
-                }
-                placeholderTextColor="#999"
-              />
+            <View style={styles.contentContainer}>
+              <ScrollView style={styles.form}>
+                <Text style={styles.label}>Full Name *</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g., Juan Perez"
+                  value={formData.full_name}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, full_name: text })
+                  }
+                  placeholderTextColor={colors.textMuted}
+                />
 
-              <Text style={styles.label}>Email</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g., juan@email.com"
-                value={formData.email}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, email: text })
-                }
-                keyboardType="email-address"
-                placeholderTextColor="#999"
-              />
+                <Text style={styles.label}>Email</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g., juan@email.com"
+                  value={formData.email}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, email: text })
+                  }
+                  keyboardType="email-address"
+                  placeholderTextColor={colors.textMuted}
+                />
 
-              <Text style={styles.label}>Phone</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g., +34 612345678"
-                value={formData.phone}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, phone: text })
-                }
-                keyboardType="phone-pad"
-                placeholderTextColor="#999"
-              />
+                <Text style={styles.label}>Phone</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g., +34 612345678"
+                  value={formData.phone}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, phone: text })
+                  }
+                  keyboardType="phone-pad"
+                  placeholderTextColor={colors.textMuted}
+                />
 
-              <Text style={styles.label}>Paper *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="e.g., ID document number"
-                value={formData.paper}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, paper: text })
-                }
-                placeholderTextColor="#999"
-              />
+                <Text style={styles.label}>Paper *</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="e.g., ID document number"
+                  value={formData.paper}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, paper: text })
+                  }
+                  placeholderTextColor={colors.textMuted}
+                />
 
-              <Text style={styles.label}>Notes</Text>
-              <TextInput
-                style={[styles.input, { height: 100 }]}
-                placeholder="Design preferences, previous tattoos, etc."
-                value={formData.notes}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, notes: text })
-                }
-                multiline
-                placeholderTextColor="#999"
-              />
+                <Text style={styles.label}>Notes</Text>
+                <TextInput
+                  style={[styles.input, { height: normalize(100) }]}
+                  placeholder="Design preferences, previous tattoos, etc."
+                  value={formData.notes}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, notes: text })
+                  }
+                  multiline
+                  placeholderTextColor={colors.textMuted}
+                />
 
-              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                <Text style={styles.saveButtonText}>
-                  {editingClient ? '✏️ Update Client' : '➕ Add Client'}
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                  <Text style={styles.saveButtonText}>
+                    {editingClient ? '✏️ Update Client' : '➕ Add Client'}
+                  </Text>
+                </TouchableOpacity>
 
-              <View style={{ height: 20 }} />
-            </ScrollView>
+                <View style={{ height: 20 }} />
+              </ScrollView>
+            </View>
           </SafeAreaView>
         </Modal>
       </SafeAreaView>
@@ -283,64 +287,70 @@ const ClientManagementModal = ({ visible, onClose, onUpdate }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: colors.background,
+  },
+  contentContainer: {
+    flex: 1,
+    width: isTablet() ? '70%' : '100%',
+    alignSelf: 'center',
+    maxWidth: 800,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#000',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#FFD700',
+    borderBottomColor: colors.primary,
   },
   title: {
-    fontSize: 20,
+    fontSize: normalize(20),
     fontWeight: 'bold',
-    color: '#FFD700',
+    color: colors.primary,
   },
   closeButton: {
-    color: '#FF6B6B',
-    fontSize: 16,
+    color: colors.error,
+    fontSize: normalize(16),
   },
   addButton: {
-    color: '#00D084',
-    fontSize: 16,
+    color: colors.success,
+    fontSize: normalize(16),
     fontWeight: 'bold',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.lg,
   },
   emptyText: {
-    color: '#999',
-    fontSize: 16,
-    marginBottom: 20,
+    color: colors.textMuted,
+    fontSize: normalize(16),
+    marginBottom: spacing.lg,
   },
   emptyButton: {
-    backgroundColor: '#FFD700',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 30,
+    backgroundColor: colors.primary,
+    borderRadius: normalize(8),
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
   },
   emptyButtonText: {
     color: '#000',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: normalize(16),
   },
   listContent: {
-    padding: 15,
+    padding: spacing.md,
   },
   clientCard: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#FFD700',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 10,
+    borderColor: colors.primary,
+    borderRadius: normalize(8),
+    padding: spacing.md,
+    marginBottom: spacing.sm,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -348,92 +358,97 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   clientName: {
-    fontSize: 18,
+    fontSize: normalize(18),
     fontWeight: 'bold',
-    color: '#FFD700',
-    marginBottom: 5,
+    color: colors.primary,
+    marginBottom: spacing.xs,
   },
   clientDetail: {
-    fontSize: 13,
-    color: '#999',
+    fontSize: normalize(13),
+    color: colors.textMuted,
+    marginBottom: 3,
+  },
+  clientNotes: {
+    fontSize: normalize(13),
+    color: colors.textMuted,
     marginBottom: 3,
   },
   clientActions: {
     flexDirection: 'row',
-    gap: 10,
+    gap: spacing.sm,
   },
   editButton: {
-    backgroundColor: '#FFD700',
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    backgroundColor: colors.primary,
+    borderRadius: normalize(6),
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     justifyContent: 'center',
     alignItems: 'center',
   },
   editButtonText: {
-    fontSize: 16,
+    fontSize: normalize(16),
   },
   deleteButton: {
-    backgroundColor: '#FF6B6B',
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    backgroundColor: colors.error,
+    borderRadius: normalize(6),
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     justifyContent: 'center',
     alignItems: 'center',
   },
   deleteButtonText: {
-    fontSize: 16,
+    fontSize: normalize(16),
   },
   formContainer: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: colors.background,
   },
   formHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#000',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#FFD700',
+    borderBottomColor: colors.primary,
   },
   formTitle: {
-    fontSize: 18,
+    fontSize: normalize(18),
     fontWeight: 'bold',
-    color: '#FFD700',
+    color: colors.primary,
   },
   form: {
     flex: 1,
-    padding: 20,
+    padding: spacing.lg,
   },
   label: {
-    color: '#FFD700',
-    fontSize: 14,
+    color: colors.primary,
+    fontSize: normalize(14),
     fontWeight: 'bold',
-    marginTop: 15,
-    marginBottom: 8,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
   },
   input: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#FFD700',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    color: '#fff',
-    fontSize: 16,
+    borderColor: colors.primary,
+    borderRadius: normalize(8),
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    color: colors.text,
+    fontSize: normalize(16),
   },
   saveButton: {
-    backgroundColor: '#FFD700',
-    borderRadius: 8,
-    paddingVertical: 15,
+    backgroundColor: colors.primary,
+    borderRadius: normalize(8),
+    paddingVertical: spacing.md,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: spacing.lg,
   },
   saveButtonText: {
     color: '#000',
-    fontSize: 16,
+    fontSize: normalize(16),
     fontWeight: 'bold',
   },
 });

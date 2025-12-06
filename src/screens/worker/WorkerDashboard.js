@@ -6,11 +6,13 @@ import {
   TouchableOpacity,
   Alert,
   RefreshControl,
+  StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../utils/authContext';
 import { globalStyles } from '../../styles/globalStyles';
 import { colors, spacing, typography } from '../../styles/theme';
+import { normalize, isTablet } from '../../utils/responsive';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import PetraLogo from '../../components/PetraLogo';
 import ApiService from '../../services/apiService';
@@ -120,139 +122,145 @@ const WorkerDashboard = ({ navigation }) => {
         />
       }
     >
-      {/* Logo Header */}
-      <View style={styles.logoHeader}>
-        <PetraLogo size="medium" />
-      </View>
-
-      {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>Welcome back,</Text>
-          <Text style={styles.userName}>{user?.full_name || 'Artist'}</Text>
+      <View style={styles.contentContainer}>
+        {/* Logo Header */}
+        <View style={styles.logoHeader}>
+          <PetraLogo size={isTablet() ? "medium" : "medium"} />
         </View>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Ionicons name="log-out-outline" size={24} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
 
-      {/* Stats Cards */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statsRow}>
-          <View style={[styles.statCard, { backgroundColor: colors.primary + '20' }]}>
-            <Ionicons name="wallet" size={24} color={colors.primary} />
-            <Text style={styles.statValue}>${dashboardData.monthlyEarnings.toFixed(0)}</Text>
-            <Text style={styles.statLabel}>Monthly Earnings</Text>
+        {/* Header */}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.greeting}>Welcome back,</Text>
+            <Text style={styles.userName}>{user?.full_name || 'Artist'}</Text>
           </View>
-          <View style={[styles.statCard, { backgroundColor: colors.secondary + '20' }]}>
-            <Ionicons name="trending-up" size={24} color={colors.secondary} />
-            <Text style={styles.statValue}>${dashboardData.weeklyEarnings.toFixed(0)}</Text>
-            <Text style={styles.statLabel}>Weekly Earnings</Text>
-          </View>
-        </View>
-        
-        <View style={styles.statsRow}>
-          <View style={[styles.statCard, { backgroundColor: colors.success + '20' }]}>
-            <Ionicons name="gift" size={24} color={colors.success} />
-            <Text style={styles.statValue}>${dashboardData.totalTips.toFixed(0)}</Text>
-            <Text style={styles.statLabel}>Total Tips</Text>
-          </View>
-          <View style={[styles.statCard, { backgroundColor: colors.warning + '20' }]}>
-            <Ionicons name="calendar-number" size={24} color={colors.warning} />
-            <Text style={styles.statValue}>{dashboardData.todayAppointments.length}</Text>
-            <Text style={styles.statLabel}>Today's Bookings</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Quick Actions */}
-      <View style={styles.quickActions}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.actionButtons}>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('Appointments')}
-          >
-            <Ionicons name="add-circle" size={32} color={colors.primary} />
-            <Text style={styles.actionText}>New Appointment</Text>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <Ionicons name="log-out-outline" size={normalize(24)} color={colors.primary} />
           </TouchableOpacity>
+        </View>
+
+        {/* Stats Cards */}
+        <View style={styles.statsContainer}>
+          <View style={styles.statsRow}>
+            <View style={[styles.statCard, { backgroundColor: colors.primary + '20' }]}>
+              <Ionicons name="wallet" size={normalize(24)} color={colors.primary} />
+              <Text style={styles.statValue}>${dashboardData.monthlyEarnings.toFixed(0)}</Text>
+              <Text style={styles.statLabel}>Monthly Earnings</Text>
+            </View>
+            <View style={[styles.statCard, { backgroundColor: colors.secondary + '20' }]}>
+              <Ionicons name="trending-up" size={normalize(24)} color={colors.secondary} />
+              <Text style={styles.statValue}>${dashboardData.weeklyEarnings.toFixed(0)}</Text>
+              <Text style={styles.statLabel}>Weekly Earnings</Text>
+            </View>
+          </View>
           
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('Payments')}
-          >
-            <Ionicons name="card" size={32} color={colors.secondary} />
-            <Text style={styles.actionText}>Record Payment</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Today's Appointments */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Today's Appointments</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Appointments')}>
-            <Text style={styles.seeAllText}>See All</Text>
-          </TouchableOpacity>
-        </View>
-        
-        {dashboardData.todayAppointments.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="calendar-outline" size={48} color={colors.textMuted} />
-            <Text style={styles.emptyText}>No appointments today</Text>
+          <View style={styles.statsRow}>
+            <View style={[styles.statCard, { backgroundColor: colors.success + '20' }]}>
+              <Ionicons name="gift" size={normalize(24)} color={colors.success} />
+              <Text style={styles.statValue}>${dashboardData.totalTips.toFixed(0)}</Text>
+              <Text style={styles.statLabel}>Total Tips</Text>
+            </View>
+            <View style={[styles.statCard, { backgroundColor: colors.warning + '20' }]}>
+              <Ionicons name="calendar-number" size={normalize(24)} color={colors.warning} />
+              <Text style={styles.statValue}>{dashboardData.todayAppointments.length}</Text>
+              <Text style={styles.statLabel}>Today's Bookings</Text>
+            </View>
           </View>
-        ) : (
-          dashboardData.todayAppointments.map((appointment) => (
-            <View key={appointment.id} style={styles.appointmentCard}>
-              <View style={styles.appointmentTime}>
-                <Text style={styles.timeText}>{appointment.time}</Text>
-                <View style={[
-                  styles.statusBadge,
-                  { backgroundColor: appointment.status === 'upcoming' ? colors.warning : colors.success }
-                ]}>
-                  <Text style={styles.statusText}>{appointment.status}</Text>
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.quickActions}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Appointments')}
+            >
+              <Ionicons name="add-circle" size={normalize(32)} color={colors.primary} />
+              <Text style={styles.actionText}>New Appointment</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Payments')}
+            >
+              <Ionicons name="card" size={normalize(32)} color={colors.secondary} />
+              <Text style={styles.actionText}>Record Payment</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Today's Appointments */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Today's Appointments</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Appointments')}>
+              <Text style={styles.seeAllText}>See All</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {dashboardData.todayAppointments.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Ionicons name="calendar-outline" size={normalize(48)} color={colors.textMuted} />
+              <Text style={styles.emptyText}>No appointments today</Text>
+            </View>
+          ) : (
+            dashboardData.todayAppointments.map((appointment) => (
+              <View key={appointment.id} style={styles.appointmentCard}>
+                <View style={styles.appointmentTime}>
+                  <Text style={styles.timeText}>{appointment.time}</Text>
+                  <View style={[
+                    styles.statusBadge,
+                    { backgroundColor: appointment.status === 'upcoming' ? colors.warning : colors.success }
+                  ]}>
+                    <Text style={styles.statusText}>{appointment.status}</Text>
+                  </View>
+                </View>
+                <View style={styles.appointmentInfo}>
+                  <Text style={styles.customerName}>{appointment.customer_name}</Text>
+                  <Text style={styles.tattooType}>{appointment.tattoo_type}</Text>
+                  <Text style={styles.price}>${appointment.price}</Text>
                 </View>
               </View>
-              <View style={styles.appointmentInfo}>
-                <Text style={styles.customerName}>{appointment.customer_name}</Text>
-                <Text style={styles.tattooType}>{appointment.tattoo_type}</Text>
-                <Text style={styles.price}>${appointment.price}</Text>
-              </View>
-            </View>
-          ))
-        )}
-      </View>
+            ))
+          )}
+        </View>
 
-      {/* Upcoming Appointments */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
-        
-        {dashboardData.upcomingAppointments.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="calendar-clear-outline" size={48} color={colors.textMuted} />
-            <Text style={styles.emptyText}>No upcoming appointments</Text>
-          </View>
-        ) : (
-          dashboardData.upcomingAppointments.map((appointment) => (
-            <View key={appointment.id} style={styles.appointmentCard}>
-              <View style={styles.appointmentDate}>
-                <Text style={styles.dateText}>{appointment.date}</Text>
-                <Text style={styles.timeText}>{appointment.time}</Text>
-              </View>
-              <View style={styles.appointmentInfo}>
-                <Text style={styles.customerName}>{appointment.customer_name}</Text>
-                <Text style={styles.tattooType}>{appointment.tattoo_type}</Text>
-                <Text style={styles.price}>${appointment.price}</Text>
-              </View>
+        {/* Upcoming Appointments */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Upcoming Appointments</Text>
+          
+          {dashboardData.upcomingAppointments.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Ionicons name="calendar-clear-outline" size={normalize(48)} color={colors.textMuted} />
+              <Text style={styles.emptyText}>No upcoming appointments</Text>
             </View>
-          ))
-        )}
+          ) : (
+            dashboardData.upcomingAppointments.map((appointment) => (
+              <View key={appointment.id} style={styles.appointmentCard}>
+                <View style={styles.appointmentDate}>
+                  <Text style={styles.dateText}>{appointment.date}</Text>
+                  <Text style={styles.timeText}>{appointment.time}</Text>
+                </View>
+                <View style={styles.appointmentInfo}>
+                  <Text style={styles.customerName}>{appointment.customer_name}</Text>
+                  <Text style={styles.tattooType}>{appointment.tattoo_type}</Text>
+                  <Text style={styles.price}>${appointment.price}</Text>
+                </View>
+              </View>
+            ))
+          )}
+        </View>
       </View>
     </ScrollView>
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
+  contentContainer: {
+    width: isTablet() ? '70%' : '100%',
+    alignSelf: 'center',
+  },
   logoHeader: {
     alignItems: 'center',
     paddingTop: spacing.lg,
@@ -288,7 +296,7 @@ const styles = {
   statCard: {
     flex: 0.48,
     backgroundColor: colors.card,
-    borderRadius: 16,
+    borderRadius: normalize(16),
     padding: spacing.md,
     alignItems: 'center',
   },
@@ -312,7 +320,7 @@ const styles = {
   actionButton: {
     flex: 0.48,
     backgroundColor: colors.card,
-    borderRadius: 16,
+    borderRadius: normalize(16),
     padding: spacing.lg,
     alignItems: 'center',
   },
@@ -340,7 +348,7 @@ const styles = {
   },
   appointmentCard: {
     backgroundColor: colors.card,
-    borderRadius: 12,
+    borderRadius: normalize(12),
     padding: spacing.md,
     marginBottom: spacing.sm,
     flexDirection: 'row',
@@ -365,12 +373,12 @@ const styles = {
   statusBadge: {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-    borderRadius: 12,
+    borderRadius: normalize(12),
   },
   statusText: {
     ...typography.caption,
     color: colors.text,
-    fontSize: 12,
+    fontSize: normalize(12),
   },
   appointmentInfo: {
     flex: 1,
@@ -397,6 +405,6 @@ const styles = {
     color: colors.textMuted,
     marginTop: spacing.md,
   },
-};
+});
 
 export default WorkerDashboard;

@@ -7,13 +7,15 @@ import {
   TextInput,
   Modal,
   Alert,
+  StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { apiService } from '../../services/apiService';
-import { colors } from '../../styles/theme';
+import { colors, spacing } from '../../styles/theme';
 import { globalStyles } from '../../styles/globalStyles';
 import AppHeader from '../../components/AppHeader';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { normalize, isTablet } from '../../utils/responsive';
 
 const AppointmentsScreen = () => {
   const [appointments, setAppointments] = useState([]);
@@ -154,67 +156,69 @@ const AppointmentsScreen = () => {
     <View style={globalStyles.container}>
       <AppHeader title="Manage Appointments" />
       
-      <TouchableOpacity
-        style={[globalStyles.button, { marginHorizontal: 20, marginBottom: 20 }]}
-        onPress={handleCreateAppointment}
-      >
-        <Ionicons name="add" size={20} color={colors.surface} />
-        <Text style={globalStyles.buttonText}>New Appointment</Text>
-      </TouchableOpacity>
+      <View style={styles.contentContainer}>
+        <TouchableOpacity
+          style={[globalStyles.button, styles.addButton]}
+          onPress={handleCreateAppointment}
+        >
+          <Ionicons name="add" size={normalize(20)} color={colors.surface} />
+          <Text style={globalStyles.buttonText}>New Appointment</Text>
+        </TouchableOpacity>
 
-      <ScrollView style={{ flex: 1 }}>
-        {appointments.map((appointment) => (
-          <View key={appointment.id} style={globalStyles.card}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <View style={{ flex: 1 }}>
-                <Text style={globalStyles.cardTitle}>{appointment.customer_name}</Text>
-                <Text style={globalStyles.cardSubtitle}>Artist: {appointment.artist_name}</Text>
-                <Text style={globalStyles.cardText}>Type: {appointment.tattoo_type}</Text>
-                <Text style={globalStyles.cardText}>Date: {formatDate(appointment.date)} at {appointment.time}</Text>
-                <Text style={globalStyles.cardText}>Price: ${appointment.price}</Text>
-                <View style={{ 
-                  flexDirection: 'row', 
-                  alignItems: 'center', 
-                  marginTop: 5 
-                }}>
-                  <View style={[
-                    globalStyles.statusBadge,
-                    { backgroundColor: getStatusColor(appointment.status) }
-                  ]}>
-                    <Text style={globalStyles.statusText}>{appointment.status.toUpperCase()}</Text>
+        <ScrollView style={{ flex: 1 }}>
+          {appointments.map((appointment) => (
+            <View key={appointment.id} style={globalStyles.card}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={globalStyles.cardTitle}>{appointment.customer_name}</Text>
+                  <Text style={globalStyles.cardSubtitle}>Artist: {appointment.artist_name}</Text>
+                  <Text style={globalStyles.cardText}>Type: {appointment.tattoo_type}</Text>
+                  <Text style={globalStyles.cardText}>Date: {formatDate(appointment.date)} at {appointment.time}</Text>
+                  <Text style={globalStyles.cardText}>Price: ${appointment.price}</Text>
+                  <View style={{ 
+                    flexDirection: 'row', 
+                    alignItems: 'center', 
+                    marginTop: spacing.xs 
+                  }}>
+                    <View style={[
+                      globalStyles.statusBadge,
+                      { backgroundColor: getStatusColor(appointment.status) }
+                    ]}>
+                      <Text style={globalStyles.statusText}>{appointment.status.toUpperCase()}</Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-              
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <TouchableOpacity
-                  onPress={() => handleEditAppointment(appointment)}
-                  style={[globalStyles.iconButton, { backgroundColor: colors.primary }]}
-                >
-                  <Ionicons name="create" size={16} color={colors.surface} />
-                </TouchableOpacity>
                 
-                <TouchableOpacity
-                  onPress={() => handleDeleteAppointment(appointment)}
-                  style={[globalStyles.iconButton, { backgroundColor: colors.error }]}
-                >
-                  <Ionicons name="trash" size={16} color={colors.surface} />
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+                  <TouchableOpacity
+                    onPress={() => handleEditAppointment(appointment)}
+                    style={[globalStyles.iconButton, { backgroundColor: colors.primary }]}
+                  >
+                    <Ionicons name="create" size={normalize(16)} color={colors.surface} />
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    onPress={() => handleDeleteAppointment(appointment)}
+                    style={[globalStyles.iconButton, { backgroundColor: colors.error }]}
+                  >
+                    <Ionicons name="trash" size={normalize(16)} color={colors.surface} />
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-          </View>
-        ))}
-        
-        {appointments.length === 0 && (
-          <View style={globalStyles.emptyState}>
-            <Ionicons name="calendar-outline" size={64} color={colors.textMuted} />
-            <Text style={globalStyles.emptyStateTitle}>No Appointments</Text>
-            <Text style={globalStyles.emptyStateText}>
-              Create your first appointment to get started
-            </Text>
-          </View>
-        )}
-      </ScrollView>
+          ))}
+          
+          {appointments.length === 0 && (
+            <View style={globalStyles.emptyState}>
+              <Ionicons name="calendar-outline" size={normalize(64)} color={colors.textMuted} />
+              <Text style={globalStyles.emptyStateTitle}>No Appointments</Text>
+              <Text style={globalStyles.emptyStateText}>
+                Create your first appointment to get started
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+      </View>
 
       {/* Appointment Form Modal */}
       <Modal
@@ -229,127 +233,146 @@ const AppointmentsScreen = () => {
             onBack={() => setModalVisible(false)}
           />
           
-          <ScrollView style={{ padding: 20 }}>
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Customer Name"
-              placeholderTextColor={colors.textMuted}
-              value={formData.customer_name}
-              onChangeText={(text) => setFormData({ ...formData, customer_name: text })}
-            />
-            
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Customer Phone"
-              placeholderTextColor={colors.textMuted}
-              value={formData.customer_phone}
-              onChangeText={(text) => setFormData({ ...formData, customer_phone: text })}
-              keyboardType="phone-pad"
-            />
-            
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Artist Name"
-              placeholderTextColor={colors.textMuted}
-              value={formData.artist_name}
-              onChangeText={(text) => setFormData({ ...formData, artist_name: text })}
-            />
-            
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Tattoo Type"
-              placeholderTextColor={colors.textMuted}
-              value={formData.tattoo_type}
-              onChangeText={(text) => setFormData({ ...formData, tattoo_type: text })}
-            />
-            
-            <TextInput
-              style={[globalStyles.input, { height: 80 }]}
-              placeholder="Description (optional)"
-              placeholderTextColor={colors.textMuted}
-              value={formData.description}
-              onChangeText={(text) => setFormData({ ...formData, description: text })}
-              multiline
-              textAlignVertical="top"
-            />
-            
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Price"
-              placeholderTextColor={colors.textMuted}
-              value={formData.price}
-              onChangeText={(text) => setFormData({ ...formData, price: text })}
-              keyboardType="numeric"
-            />
-            
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Date (YYYY-MM-DD)"
-              placeholderTextColor={colors.textMuted}
-              value={formData.date}
-              onChangeText={(text) => setFormData({ ...formData, date: text })}
-            />
-            
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Time (HH:MM)"
-              placeholderTextColor={colors.textMuted}
-              value={formData.time}
-              onChangeText={(text) => setFormData({ ...formData, time: text })}
-            />
-            
-            <TextInput
-              style={globalStyles.input}
-              placeholder="Duration (minutes)"
-              placeholderTextColor={colors.textMuted}
-              value={formData.duration}
-              onChangeText={(text) => setFormData({ ...formData, duration: text })}
-              keyboardType="numeric"
-            />
-            
-            <View style={{ marginBottom: 20 }}>
-              <Text style={[globalStyles.cardText, { marginBottom: 10 }]}>Status:</Text>
-              {['upcoming', 'completed', 'cancelled'].map((status) => (
-                <TouchableOpacity
-                  key={status}
-                  style={[
-                    globalStyles.radioOption,
-                    formData.status === status && globalStyles.radioOptionSelected
-                  ]}
-                  onPress={() => setFormData({ ...formData, status })}
-                >
-                  <Text style={[
-                    globalStyles.radioText,
-                    formData.status === status && globalStyles.radioTextSelected
-                  ]}>
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+          <ScrollView style={{ flex: 1 }}>
+            <View style={styles.formContainer}>
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Customer Name"
+                placeholderTextColor={colors.textMuted}
+                value={formData.customer_name}
+                onChangeText={(text) => setFormData({ ...formData, customer_name: text })}
+              />
+              
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Customer Phone"
+                placeholderTextColor={colors.textMuted}
+                value={formData.customer_phone}
+                onChangeText={(text) => setFormData({ ...formData, customer_phone: text })}
+                keyboardType="phone-pad"
+              />
+              
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Artist Name"
+                placeholderTextColor={colors.textMuted}
+                value={formData.artist_name}
+                onChangeText={(text) => setFormData({ ...formData, artist_name: text })}
+              />
+              
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Tattoo Type"
+                placeholderTextColor={colors.textMuted}
+                value={formData.tattoo_type}
+                onChangeText={(text) => setFormData({ ...formData, tattoo_type: text })}
+              />
+              
+              <TextInput
+                style={[globalStyles.input, { height: normalize(80) }]}
+                placeholder="Description (optional)"
+                placeholderTextColor={colors.textMuted}
+                value={formData.description}
+                onChangeText={(text) => setFormData({ ...formData, description: text })}
+                multiline
+                textAlignVertical="top"
+              />
+              
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Price"
+                placeholderTextColor={colors.textMuted}
+                value={formData.price}
+                onChangeText={(text) => setFormData({ ...formData, price: text })}
+                keyboardType="numeric"
+              />
+              
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Date (YYYY-MM-DD)"
+                placeholderTextColor={colors.textMuted}
+                value={formData.date}
+                onChangeText={(text) => setFormData({ ...formData, date: text })}
+              />
+              
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Time (HH:MM)"
+                placeholderTextColor={colors.textMuted}
+                value={formData.time}
+                onChangeText={(text) => setFormData({ ...formData, time: text })}
+              />
+              
+              <TextInput
+                style={globalStyles.input}
+                placeholder="Duration (minutes)"
+                placeholderTextColor={colors.textMuted}
+                value={formData.duration}
+                onChangeText={(text) => setFormData({ ...formData, duration: text })}
+                keyboardType="numeric"
+              />
+              
+              <View style={{ marginBottom: spacing.lg }}>
+                <Text style={[globalStyles.cardText, { marginBottom: spacing.sm }]}>Status:</Text>
+                {['upcoming', 'completed', 'cancelled'].map((status) => (
+                  <TouchableOpacity
+                    key={status}
+                    style={[
+                      globalStyles.radioOption,
+                      formData.status === status && globalStyles.radioOptionSelected
+                    ]}
+                    onPress={() => setFormData({ ...formData, status })}
+                  >
+                    <Text style={[
+                      globalStyles.radioText,
+                      formData.status === status && globalStyles.radioTextSelected
+                    ]}>
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              
+              <TouchableOpacity
+                style={globalStyles.button}
+                onPress={handleSaveAppointment}
+              >
+                <Text style={globalStyles.buttonText}>
+                  {editingAppointment ? 'Update Appointment' : 'Create Appointment'}
+                </Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={[globalStyles.button, globalStyles.secondaryButton]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={[globalStyles.buttonText, globalStyles.secondaryButtonText]}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
             </View>
-            
-            <TouchableOpacity
-              style={globalStyles.button}
-              onPress={handleSaveAppointment}
-            >
-              <Text style={globalStyles.buttonText}>
-                {editingAppointment ? 'Update Appointment' : 'Create Appointment'}
-              </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[globalStyles.button, globalStyles.secondaryButton]}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={[globalStyles.buttonText, globalStyles.secondaryButtonText]}>
-                Cancel
-              </Text>
-            </TouchableOpacity>
           </ScrollView>
         </View>
       </Modal>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  contentContainer: {
+    flex: 1,
+    width: isTablet() ? '70%' : '100%',
+    alignSelf: 'center',
+  },
+  addButton: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  formContainer: {
+    padding: spacing.lg,
+    width: isTablet() ? '60%' : '100%',
+    alignSelf: 'center',
+  },
+});
 
 export default AppointmentsScreen;
