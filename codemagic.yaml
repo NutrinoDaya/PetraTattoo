@@ -15,6 +15,10 @@ workflows:
       - name: Install npm dependencies
         script: |
           npm install --legacy-peer-deps
+      - name: Clear Metro bundler cache
+        script: |
+          rm -rf $TMPDIR/metro-* || true
+          rm -rf $TMPDIR/haste-* || true
       - name: Install CocoaPods dependencies
         script: |
           cd ios
