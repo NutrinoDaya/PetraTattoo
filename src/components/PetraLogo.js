@@ -25,7 +25,7 @@ const PetraLogo = ({
   return (
     <View style={[{ alignItems: 'center' }, style]}>
       <Image
-        source={require('../assets/petra-logo.png')}
+        source={require('../../assets/petra-logo.png')}
         style={[getSizeStyle()]}
         resizeMode="contain"
       />
