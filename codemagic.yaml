@@ -21,9 +21,26 @@ workflows:
           pod install
       - name: Build iOS app for Simulator
         script: |
-          export SKIP_BUNDLING=0
-          export RCT_METRO_PORT=8081
           export NODE_BINARY=$(command -v node)
+          
+          # Create the bundle manually to ensure it exists
+          npx react-native bundle \
+            --platform ios \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output ios/main.jsbundle \
+            --assets-dest ios
+          
+          # Verify bundle was created
+          if [ ! -f ios/main.jsbundle ]; then
+            echo "ERROR: Bundle file not created!"
+            exit 1
+          fi
+          
+          echo "Bundle created successfully at ios/main.jsbundle"
+          ls -lh ios/main.jsbundle
+          
+          # Build the app with SKIP_BUNDLING since we already created it
           xcodebuild -workspace "$XCODE_WORKSPACE" \
             -scheme "$XCODE_SCHEME" \
             -sdk iphonesimulator \
@@ -32,6 +49,7 @@ workflows:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
+            SKIP_BUNDLING=YES \
             clean build
       - name: Package app as ZIP
         script: |
