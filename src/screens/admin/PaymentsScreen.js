@@ -9,7 +9,7 @@ import {
   Alert,
   StyleSheet,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { apiService } from '../../services/apiService';
 import { colors, spacing } from '../../styles/theme';
 import { globalStyles } from '../../styles/globalStyles';
