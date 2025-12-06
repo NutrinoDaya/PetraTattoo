@@ -46,14 +46,13 @@ workflows:
             CODE_SIGNING_ALLOWED=NO \
             SKIP_BUNDLING=1 \
             clean build
-      - name: Package IPA
+      - name: Package app as ZIP
         script: |
-          mkdir -p Payload
           APP_PATH=$(find $HOME/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
-          cp -r "$APP_PATH" Payload/
-          zip -r PetraTatoo.ipa Payload
+          cp -r "$APP_PATH" ./PetraTatoo.app
+          zip -r PetraTatoo.app.zip PetraTatoo.app
     artifacts:
-      - "*.ipa"
+      - "*.app.zip"
       - /tmp/xcodebuild_logs/*.log
     publishing:
       email:
