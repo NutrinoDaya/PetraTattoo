@@ -41,7 +41,7 @@ workflows:
             -scheme "$XCODE_SCHEME" \
             -sdk iphonesimulator \
             -configuration Debug \
-            -destination 'platform=iOS Simulator,name=iPad Pro (12.9-inch) (6th generation)' \
+            -destination 'platform=iOS Simulator,name=iPad Pro 13-inch (M5),OS=26.1' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
