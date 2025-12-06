@@ -22,14 +22,17 @@ workflows:
       - name: Build iOS app for Simulator
         script: |
           export NODE_BINARY=$(command -v node)
+          export SKIP_BUNDLING=0
+          export RCT_METRO_PORT=8081
           
-          # Create the bundle manually to ensure it exists
+          # Create the bundle manually with reset cache
           npx react-native bundle \
             --platform ios \
             --dev false \
             --entry-file index.js \
             --bundle-output ios/main.jsbundle \
-            --assets-dest ios
+            --assets-dest ios \
+            --reset-cache
           
           # Verify bundle was created
           if [ ! -f ios/main.jsbundle ]; then
@@ -40,7 +43,7 @@ workflows:
           echo "Bundle created successfully at ios/main.jsbundle"
           ls -lh ios/main.jsbundle
           
-          # Build the app with SKIP_BUNDLING since we already created it
+          # Build the app with SKIP_BUNDLING=1 since we already created it
           xcodebuild -workspace "$XCODE_WORKSPACE" \
             -scheme "$XCODE_SCHEME" \
             -sdk iphonesimulator \
@@ -49,7 +52,7 @@ workflows:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            SKIP_BUNDLING=YES \
+            SKIP_BUNDLING=1 \
             clean build
       - name: Package app as ZIP
         script: |
