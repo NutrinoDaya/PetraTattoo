@@ -537,7 +537,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: normalize(20),
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: colors.primary,
   },
   cancelButton: {
@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
   label: {
     color: colors.primary,
     fontSize: normalize(14),
-    fontWeight: 'bold',
+    fontWeight: '700',
     marginTop: spacing.md,
     marginBottom: spacing.sm,
   },
@@ -593,7 +593,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#000',
     fontSize: normalize(16),
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   pickerContainer: {
     flex: 1,
@@ -611,13 +611,13 @@ const styles = StyleSheet.create({
   },
   pickerTitle: {
     fontSize: normalize(18),
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: colors.primary,
   },
   pickerHeaderButton: {
     color: colors.primary,
     fontSize: normalize(16),
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   pickerItem: {
     paddingHorizontal: spacing.lg,

@@ -50,7 +50,7 @@ const AdminTabs = () => {
         },
         headerTintColor: colors.text,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontWeight: '700',
         },
       })}
     >

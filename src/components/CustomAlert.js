@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: normalize(18),
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#000',
     textAlign: 'center',
   },

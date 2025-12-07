@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: normalize(20),
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: colors.primary,
   },
   closeButton: {
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   addButton: {
     color: colors.success,
     fontSize: normalize(16),
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   emptyContainer: {
     flex: 1,
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   },
   emptyButtonText: {
     color: '#000',
-    fontWeight: 'bold',
+    fontWeight: '700',
     fontSize: normalize(16),
   },
   listContent: {
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
   },
   clientName: {
     fontSize: normalize(18),
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: colors.primary,
     marginBottom: spacing.xs,
   },
@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
   },
   formTitle: {
     fontSize: normalize(18),
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: colors.primary,
   },
   form: {
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
   label: {
     color: colors.primary,
     fontSize: normalize(14),
-    fontWeight: 'bold',
+    fontWeight: '700',
     marginTop: spacing.md,
     marginBottom: spacing.sm,
   },
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#000',
     fontSize: normalize(16),
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
 });
 
