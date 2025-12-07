@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { globalStyles } from '../styles/globalStyles';
-import { colors, spacing, typography } from '../styles/theme';
+import { colors, spacing } from '../styles/theme';
 import { normalize, isTablet } from '../utils/responsive';
 import PetraLogo from './PetraLogo';
 
@@ -54,11 +53,14 @@ const styles = StyleSheet.create({
     flex: isTablet() ? 1 : 0,
   },
   title: {
-    ...typography.h3,
+    fontSize: normalize(24),
+    fontWeight: '600',
+    color: colors.text,
     textAlign: 'center',
   },
   subtitle: {
-    ...typography.body,
+    fontSize: normalize(16),
+    fontWeight: '400',
     color: colors.textSecondary,
     textAlign: 'center',
     marginTop: spacing.xs,

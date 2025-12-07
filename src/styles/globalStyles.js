@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, spacing, typography, borderRadius, shadows } from './theme';
+import { colors, spacing, borderRadius, shadows } from './theme';
 import { normalize, isTablet } from '../utils/responsive';
 
 export const globalStyles = StyleSheet.create({
@@ -52,7 +52,8 @@ export const globalStyles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonText: {
-    ...typography.button,
+    fontSize: normalize(16),
+    fontWeight: '600',
     color: colors.text,
   },
   
@@ -69,7 +70,8 @@ export const globalStyles = StyleSheet.create({
     marginVertical: spacing.xs,
   },
   inputLabel: {
-    ...typography.body,
+    fontSize: normalize(16),
+    fontWeight: '400',
     color: colors.textSecondary,
     marginBottom: spacing.xs,
   },
@@ -92,7 +94,9 @@ export const globalStyles = StyleSheet.create({
     ...shadows.small,
   },
   headerTitle: {
-    ...typography.h3,
+    fontSize: normalize(24),
+    fontWeight: '600',
+    color: colors.text,
     textAlign: 'center',
   },
   
@@ -128,13 +132,41 @@ export const globalStyles = StyleSheet.create({
   },
   
   // Typography
-  title: typography.h1,
-  subtitle: typography.h2,
-  heading: typography.h3,
-  subheading: typography.h4,
-  body: typography.body,
-  bodySecondary: typography.bodySecondary,
-  caption: typography.caption,
+  title: {
+    fontSize: normalize(32),
+    fontWeight: '700',
+    color: colors.text,
+  },
+  subtitle: {
+    fontSize: normalize(28),
+    fontWeight: '700',
+    color: colors.text,
+  },
+  heading: {
+    fontSize: normalize(24),
+    fontWeight: '600',
+    color: colors.text,
+  },
+  subheading: {
+    fontSize: normalize(20),
+    fontWeight: '600',
+    color: colors.text,
+  },
+  body: {
+    fontSize: normalize(16),
+    fontWeight: '400',
+    color: colors.text,
+  },
+  bodySecondary: {
+    fontSize: normalize(16),
+    fontWeight: '400',
+    color: colors.textSecondary,
+  },
+  caption: {
+    fontSize: normalize(14),
+    fontWeight: '400',
+    color: colors.textMuted,
+  },
   
   // Spacing utilities
   mb8: { marginBottom: spacing.sm },

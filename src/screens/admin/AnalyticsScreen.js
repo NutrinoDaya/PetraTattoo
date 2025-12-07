@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { dbService } from '../../services/localTattooService';
-import { colors, spacing, typography } from '../../styles/theme';
+import { colors, spacing } from '../../styles/theme';
 import { normalize, isTablet } from '../../utils/responsive';
 
 const AnalyticsScreen = ({ refreshTrigger }) => {
@@ -176,7 +176,8 @@ const styles = StyleSheet.create({
     fontSize: normalize(16),
   },
   screenTitle: {
-    ...typography.h2,
+    fontSize: normalize(28),
+    fontWeight: '700',
     color: colors.primary,
     marginBottom: spacing.lg,
     textAlign: 'center',
@@ -185,7 +186,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   sectionTitle: {
-    ...typography.h3,
+    fontSize: normalize(20),
+    fontWeight: '600',
     color: colors.primary,
     marginBottom: spacing.md,
   },
@@ -203,12 +205,14 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   statLabel: {
-    ...typography.caption,
+    fontSize: normalize(12),
+    fontWeight: '400',
     color: colors.textMuted,
     marginBottom: spacing.xs,
   },
   statValue: {
-    ...typography.h2,
+    fontSize: normalize(28),
+    fontWeight: '700',
     color: colors.primary,
     marginBottom: spacing.xs,
   },

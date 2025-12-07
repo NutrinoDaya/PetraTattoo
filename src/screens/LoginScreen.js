@@ -14,7 +14,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../utils/authContext';
 import { globalStyles } from '../styles/globalStyles';
-import { colors, spacing, typography } from '../styles/theme';
+import { colors, spacing } from '../styles/theme';
 import { normalize, isTablet, wp } from '../utils/responsive';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PetraLogo from '../components/PetraLogo';
@@ -175,7 +175,9 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   appSubtitle: {
-    ...typography.bodySecondary,
+    fontSize: normalize(14),
+    fontWeight: '400',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   formContainer: {
@@ -187,7 +189,9 @@ const styles = StyleSheet.create({
     maxWidth: 600, // Max width for very large screens
   },
   formTitle: {
-    ...typography.h2,
+    fontSize: normalize(28),
+    fontWeight: '700',
+    color: colors.text,
     textAlign: 'center',
     marginBottom: spacing.lg,
   },
@@ -225,7 +229,9 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   quickLoginTitle: {
-    ...typography.caption,
+    fontSize: normalize(12),
+    fontWeight: '400',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: spacing.md,
   },
@@ -244,14 +250,16 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   footerText: {
-    ...typography.caption,
+    fontSize: normalize(12),
+    fontWeight: '400',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: spacing.xs,
   },
   versionText: {
-    ...typography.caption,
-    color: colors.textMuted,
     fontSize: normalize(12),
+    fontWeight: '400',
+    color: colors.textMuted,
   },
 });
 

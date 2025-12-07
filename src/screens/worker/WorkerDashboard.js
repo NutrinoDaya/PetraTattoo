@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { globalStyles } from '../../styles/globalStyles';
-import { colors, spacing, typography } from '../../styles/theme';
+import { colors, spacing } from '../../styles/theme';
 import { normalize, isTablet } from '../../utils/responsive';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import PetraLogo from '../../components/PetraLogo';
@@ -257,11 +257,14 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
   },
   greeting: {
-    ...typography.body,
+    fontSize: normalize(16),
+    fontWeight: '400',
     color: colors.textSecondary,
   },
   userName: {
-    ...typography.h2,
+    fontSize: normalize(28),
+    fontWeight: '700',
+    color: colors.text,
     marginTop: spacing.xs,
   },
   statsContainer: {
@@ -281,12 +284,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statValue: {
-    ...typography.h2,
+    fontSize: normalize(28),
+    fontWeight: '700',
+    color: colors.text,
     marginTop: spacing.xs,
     marginBottom: spacing.xs,
   },
   statLabel: {
-    ...typography.caption,
+    fontSize: normalize(12),
+    fontWeight: '400',
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   quickActions: {
@@ -305,7 +312,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   actionText: {
-    ...typography.body,
+    fontSize: normalize(16),
+    fontWeight: '400',
+    color: colors.text,
     textAlign: 'center',
     marginTop: spacing.sm,
   },
@@ -320,10 +329,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   sectionTitle: {
-    ...typography.h3,
+    fontSize: normalize(20),
+    fontWeight: '600',
+    color: colors.text,
   },
   seeAllText: {
-    ...typography.body,
+    fontSize: normalize(16),
+    fontWeight: '400',
     color: colors.primary,
   },
   appointmentCard: {
@@ -342,11 +354,14 @@ const styles = StyleSheet.create({
     marginRight: spacing.md,
   },
   timeText: {
-    ...typography.h4,
+    fontSize: normalize(18),
+    fontWeight: '600',
+    color: colors.text,
     marginBottom: spacing.xs,
   },
   dateText: {
-    ...typography.body,
+    fontSize: normalize(16),
+    fontWeight: '400',
     color: colors.textSecondary,
     marginBottom: spacing.xs,
   },
@@ -356,24 +371,28 @@ const styles = StyleSheet.create({
     borderRadius: normalize(12),
   },
   statusText: {
-    ...typography.caption,
-    color: colors.text,
     fontSize: normalize(12),
+    fontWeight: '400',
+    color: colors.text,
   },
   appointmentInfo: {
     flex: 1,
   },
   customerName: {
-    ...typography.h4,
+    fontSize: normalize(18),
+    fontWeight: '600',
+    color: colors.text,
     marginBottom: spacing.xs,
   },
   tattooType: {
-    ...typography.body,
+    fontSize: normalize(16),
+    fontWeight: '400',
     color: colors.textSecondary,
     marginBottom: spacing.xs,
   },
   price: {
-    ...typography.h4,
+    fontSize: normalize(18),
+    fontWeight: '600',
     color: colors.primary,
   },
   emptyState: {
@@ -381,7 +400,8 @@ const styles = StyleSheet.create({
     padding: spacing.xxl,
   },
   emptyText: {
-    ...typography.body,
+    fontSize: normalize(16),
+    fontWeight: '400',
     color: colors.textMuted,
     marginTop: spacing.md,
   },
