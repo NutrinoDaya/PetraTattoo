@@ -53,12 +53,12 @@ export const spacing = {
 export const typography = {
   h1: {
     fontSize: normalize(32),
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: colors.text,
   },
   h2: {
     fontSize: normalize(28),
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: colors.text,
   },
   h3: {
@@ -73,14 +73,17 @@ export const typography = {
   },
   body: {
     fontSize: normalize(16),
+    fontWeight: '400',
     color: colors.text,
   },
   bodySecondary: {
     fontSize: normalize(16),
+    fontWeight: '400',
     color: colors.textSecondary,
   },
   caption: {
     fontSize: normalize(14),
+    fontWeight: '400',
     color: colors.textMuted,
   },
   button: {
