@@ -22,10 +22,8 @@ workflows:
       - name: Build iOS app for Simulator
         script: |
           export NODE_BINARY=$(command -v node)
-          export SKIP_BUNDLING=0
-          export RCT_METRO_PORT=8081
           
-          # Build the app - let Xcode handle bundling
+          # First, build the app structure
           xcodebuild -workspace "$XCODE_WORKSPACE" \
             -scheme "$XCODE_SCHEME" \
             -sdk iphonesimulator \
@@ -34,10 +32,22 @@ workflows:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
+            SKIP_BUNDLING=1 \
             clean build
           
-          # Verify bundle exists in the .app
+          # Find the .app path
           APP_PATH=$(find $HOME/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
+          echo "App built at: $APP_PATH"
+          
+          # Create the bundle
+          npx react-native bundle \
+            --platform ios \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output "$APP_PATH/main.jsbundle" \
+            --assets-dest "$APP_PATH"
+          
+          # Verify bundle exists in the .app
           if [ ! -f "$APP_PATH/main.jsbundle" ]; then
             echo "ERROR: Bundle not found in .app at $APP_PATH"
             ls -la "$APP_PATH"
