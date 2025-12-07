@@ -13,9 +13,8 @@ export const globalStyles = StyleSheet.create({
   },
   responsiveContainer: {
     flex: 1,
-    width: isTablet() ? '90%' : '100%',
-    alignSelf: 'center',
-    maxWidth: isTablet() ? 1200 : 800,
+    width: '100%',
+    paddingHorizontal: 16,
   },
   safeArea: {
     flex: 1,

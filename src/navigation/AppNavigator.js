@@ -3,13 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useAuth } from '../utils/authContext';
 import { colors } from '../styles/theme';
 import { normalize } from '../utils/responsive';
-
-// Screens
-import LoginScreen from '../screens/LoginScreen';
-import LoadingSpinner from '../components/LoadingSpinner';
 
 // Admin Screens
 import AdminDashboard from '../screens/admin/AdminDashboard';
@@ -85,12 +80,6 @@ const AdminTabs = () => {
 
 // Main App Navigation
 const AppNavigator = () => {
-  const { isLoading, isAuthenticated, user } = useAuth();
-
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
   return (
     <NavigationContainer
       theme={{
@@ -111,11 +100,7 @@ const AppNavigator = () => {
           cardStyle: { backgroundColor: colors.background },
         }}
       >
-        {!isAuthenticated ? (
-          <Stack.Screen name="Login" component={LoginScreen} />
-        ) : (
-          <Stack.Screen name="AdminTabs" component={AdminTabs} />
-        )}
+        <Stack.Screen name="AdminTabs" component={AdminTabs} />
       </Stack.Navigator>
     </NavigationContainer>
   );
