@@ -12,6 +12,20 @@ workflows:
       xcode: latest
       cocoapods: default
     scripts:
+      - name: Clean all caches
+        script: |
+          # Clean npm cache
+          npm cache clean --force
+          
+          # Clean Metro bundler cache
+          rm -rf /tmp/metro-*
+          rm -rf $TMPDIR/metro-*
+          rm -rf node_modules/.cache
+          
+          # Clean Xcode DerivedData
+          rm -rf ~/Library/Developer/Xcode/DerivedData/*
+          
+          echo "All caches cleaned"
       - name: Install npm dependencies
         script: |
           npm install --legacy-peer-deps
@@ -23,7 +37,23 @@ workflows:
         script: |
           export NODE_BINARY=$(command -v node)
           
-          # First, build the app structure
+          # First create the bundle with reset-cache to ensure fresh code
+          npx react-native bundle \
+            --platform ios \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output ios/main.jsbundle \
+            --assets-dest ios \
+            --reset-cache
+          
+          echo "Bundle created. Verifying no 'bold' fontWeight..."
+          if grep -q "fontWeight:'bold'" ios/main.jsbundle; then
+            echo "WARNING: Found fontWeight:'bold' in bundle"
+          else
+            echo "OK: No fontWeight:'bold' found in bundle"
+          fi
+          
+          # Now build the app structure with pre-built bundle
           xcodebuild -workspace "$XCODE_WORKSPACE" \
             -scheme "$XCODE_SCHEME" \
             -sdk iphonesimulator \
@@ -32,26 +62,16 @@ workflows:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            SKIP_BUNDLING=1 \
             clean build
           
           # Find the .app path
-          APP_PATH=$(find $HOME/Library/Developer/Xcode/DerivedData -name "*.app" | head -n 1)
+          APP_PATH=$(find $HOME/Library/Developer/Xcode/DerivedData -name "*.app" -type d | head -n 1)
           echo "App built at: $APP_PATH"
-          
-          # Create the bundle
-          npx react-native bundle \
-            --platform ios \
-            --dev false \
-            --entry-file index.js \
-            --bundle-output "$APP_PATH/main.jsbundle" \
-            --assets-dest "$APP_PATH"
           
           # Verify bundle exists in the .app
           if [ ! -f "$APP_PATH/main.jsbundle" ]; then
-            echo "ERROR: Bundle not found in .app at $APP_PATH"
-            ls -la "$APP_PATH"
-            exit 1
+            echo "Bundle not in .app, copying..."
+            cp ios/main.jsbundle "$APP_PATH/main.jsbundle"
           fi
           
           echo "Bundle successfully embedded in .app"
