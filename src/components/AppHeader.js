@@ -1,7 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useAuth } from '../utils/authContext';
+import { View, Text, StyleSheet } from 'react-native';
 import { globalStyles } from '../styles/globalStyles';
 import { colors, spacing, typography } from '../styles/theme';
 import { normalize, isTablet } from '../utils/responsive';
@@ -9,24 +7,10 @@ import PetraLogo from './PetraLogo';
 
 const AppHeader = ({ 
   title, 
-  showLogo = true, 
-  showLogout = true,
+  showLogo = true,
   subtitle = null,
   style = {} 
 }) => {
-  const { user, logout } = useAuth();
-
-  const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', style: 'destructive', onPress: logout },
-      ]
-    );
-  };
-
   return (
     <View style={[styles.container, style]}>
       <View style={styles.contentRow}>
@@ -40,12 +24,6 @@ const AppHeader = ({
           {title && <Text style={styles.title}>{title}</Text>}
           {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
         </View>
-
-        {showLogout && (
-          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <Ionicons name="log-out-outline" size={normalize(24)} color={colors.primary} />
-          </TouchableOpacity>
-        )}
       </View>
     </View>
   );
@@ -84,12 +62,6 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
     marginTop: spacing.xs,
-  },
-  logoutButton: {
-    position: 'absolute',
-    right: 0,
-    top: isTablet() ? 'auto' : spacing.sm,
-    padding: spacing.sm,
   },
 });
 

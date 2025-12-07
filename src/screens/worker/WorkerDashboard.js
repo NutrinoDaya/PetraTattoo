@@ -4,12 +4,10 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  Alert,
   RefreshControl,
   StyleSheet,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useAuth } from '../../utils/authContext';
 import { globalStyles } from '../../styles/globalStyles';
 import { colors, spacing, typography } from '../../styles/theme';
 import { normalize, isTablet } from '../../utils/responsive';
@@ -18,7 +16,6 @@ import PetraLogo from '../../components/PetraLogo';
 import ApiService from '../../services/apiService';
 
 const WorkerDashboard = ({ navigation }) => {
-  const { user, logout } = useAuth();
   const [dashboardData, setDashboardData] = useState({
     todayAppointments: [],
     upcomingAppointments: [],
@@ -91,17 +88,6 @@ const WorkerDashboard = ({ navigation }) => {
     loadDashboardData();
   };
 
-  const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Logout', style: 'destructive', onPress: logout },
-      ]
-    );
-  };
-
   if (loading) {
     return (
       <View style={[globalStyles.container, globalStyles.center]}>
@@ -131,12 +117,9 @@ const WorkerDashboard = ({ navigation }) => {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Welcome back,</Text>
-            <Text style={styles.userName}>{user?.full_name || 'Artist'}</Text>
+            <Text style={styles.greeting}>Welcome back</Text>
+            <Text style={styles.userName}>Artist</Text>
           </View>
-          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <Ionicons name="log-out-outline" size={normalize(24)} color={colors.primary} />
-          </TouchableOpacity>
         </View>
 
         {/* Stats Cards */}
@@ -280,9 +263,6 @@ const styles = StyleSheet.create({
   userName: {
     ...typography.h2,
     marginTop: spacing.xs,
-  },
-  logoutButton: {
-    padding: spacing.sm,
   },
   statsContainer: {
     paddingHorizontal: spacing.md,
