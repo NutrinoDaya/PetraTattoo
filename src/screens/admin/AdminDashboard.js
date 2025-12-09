@@ -13,6 +13,8 @@ import { colors, spacing } from '../../styles/theme';
 import { normalize, isTablet } from '../../utils/responsive';
 import AppHeader from '../../components/AppHeader';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import NewAppointmentModal from '../../components/NewAppointmentModal';
+import NewPaymentModal from '../../components/NewPaymentModal';
 import { dbService } from '../../services/localTattooService';
 
 const AdminDashboard = ({ navigation }) => {
@@ -23,8 +25,11 @@ const AdminDashboard = ({ navigation }) => {
     totalClients: 0,
     totalArtists: 0,
   });
+  const [todayAppointments, setTodayAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showNewAppointment, setShowNewAppointment] = useState(false);
+  const [showNewPayment, setShowNewPayment] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -39,6 +44,7 @@ const AdminDashboard = ({ navigation }) => {
       }
       
       const analytics = await dbService.getAnalytics();
+      const todayAppts = await dbService.getTodayAppointments();
       
       setDashboardData({
         todayRevenue: analytics.todayRevenue,
@@ -47,6 +53,7 @@ const AdminDashboard = ({ navigation }) => {
         totalClients: analytics.totalClients,
         totalArtists: analytics.totalWorkers,
       });
+      setTodayAppointments(todayAppts);
     } catch (error) {
       console.error('Dashboard load error:', error);
     } finally {
@@ -60,8 +67,19 @@ const AdminDashboard = ({ navigation }) => {
     loadDashboardData();
   };
 
+  const handleAppointmentSaved = () => {
+    loadDashboardData();
+    navigation.navigate('Appointments');
+  };
+
+  const handlePaymentSaved = () => {
+    loadDashboardData();
+    navigation.navigate('Payments');
+  };
+
   const formatCurrency = (value) => {
-    return `$${(value || 0).toFixed(2)}`;
+    const num = parseFloat(value) || 0;
+    return `$${num.toFixed(2)}`;
   };
 
   if (loading) {
@@ -100,7 +118,7 @@ const AdminDashboard = ({ navigation }) => {
               <View style={[styles.statCard, { backgroundColor: colors.secondary + '20' }]}>
                 <Ionicons name="today" size={normalize(24)} color={colors.secondary} />
                 <Text style={styles.statValue}>{formatCurrency(dashboardData.todayRevenue)}</Text>
-                <Text style={styles.statLabel}>Today's Revenue</Text>
+                <Text style={styles.statLabel}>Today Revenue</Text>
               </View>
             </View>
             
@@ -108,7 +126,7 @@ const AdminDashboard = ({ navigation }) => {
               <View style={[styles.statCard, { backgroundColor: colors.success + '20' }]}>
                 <Ionicons name="calendar" size={normalize(24)} color={colors.success} />
                 <Text style={styles.statValue}>{dashboardData.todayAppointmentsCount}</Text>
-                <Text style={styles.statLabel}>Today's Appts</Text>
+                <Text style={styles.statLabel}>Today Appts</Text>
               </View>
               <View style={[styles.statCard, { backgroundColor: colors.warning + '20' }]}>
                 <Ionicons name="people" size={normalize(24)} color={colors.warning} />
@@ -121,26 +139,97 @@ const AdminDashboard = ({ navigation }) => {
           {/* Quick Actions */}
           <View style={styles.quickActions}>
             <Text style={styles.sectionTitle}>Quick Actions</Text>
-            <View style={styles.actionButtons}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => navigation.navigate('Appointments')}
-              >
-                <Ionicons name="add-circle" size={normalize(32)} color={colors.primary} />
-                <Text style={styles.actionText}>New Appointment</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => navigation.navigate('Payments')}
-              >
-                <Ionicons name="card" size={normalize(32)} color={colors.secondary} />
-                <Text style={styles.actionText}>Record Payment</Text>
-              </TouchableOpacity>
-            </View>
+            
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => setShowNewAppointment(true)}
+            >
+              <Ionicons name="add-circle" size={normalize(24)} color={colors.primary} />
+              <Text style={styles.actionText}>New Appointment</Text>
+              <Ionicons name="chevron-forward" size={normalize(20)} color={colors.textMuted} />
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => setShowNewPayment(true)}
+            >
+              <Ionicons name="card" size={normalize(24)} color={colors.secondary} />
+              <Text style={styles.actionText}>Record Payment</Text>
+              <Ionicons name="chevron-forward" size={normalize(20)} color={colors.textMuted} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Appointments')}
+            >
+              <Ionicons name="calendar-outline" size={normalize(24)} color={colors.success} />
+              <Text style={styles.actionText}>View All Appointments</Text>
+              <Ionicons name="chevron-forward" size={normalize(20)} color={colors.textMuted} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Analytics')}
+            >
+              <Ionicons name="bar-chart" size={normalize(24)} color={colors.warning} />
+              <Text style={styles.actionText}>View Analytics</Text>
+              <Ionicons name="chevron-forward" size={normalize(20)} color={colors.textMuted} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('WorkerManagement')}
+            >
+              <Ionicons name="people-outline" size={normalize(24)} color={colors.primary} />
+              <Text style={styles.actionText}>Manage People</Text>
+              <Ionicons name="chevron-forward" size={normalize(20)} color={colors.textMuted} />
+            </TouchableOpacity>
           </View>
+
+          {/* Today Appointments Preview */}
+          {todayAppointments.length > 0 && (
+            <View style={styles.todaySection}>
+              <Text style={styles.sectionTitle}>Today Appointments</Text>
+              {todayAppointments.slice(0, 3).map((apt) => (
+                <View key={apt.id} style={styles.appointmentPreview}>
+                  <View style={styles.appointmentInfo}>
+                    <Text style={styles.appointmentName}>{apt.customer_name}</Text>
+                    <Text style={styles.appointmentDetail}>
+                      {apt.appointment_time} - {apt.artist_name}
+                    </Text>
+                  </View>
+                  <Text style={styles.appointmentStatus}>{apt.status}</Text>
+                </View>
+              ))}
+              {todayAppointments.length > 3 && (
+                <TouchableOpacity 
+                  style={styles.viewAllButton}
+                  onPress={() => navigation.navigate('Appointments')}
+                >
+                  <Text style={styles.viewAllText}>
+                    View All ({todayAppointments.length} appointments)
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+
+          <View style={{ height: spacing.xl * 2 }} />
         </View>
       </ScrollView>
+
+      {/* Modals */}
+      <NewAppointmentModal
+        visible={showNewAppointment}
+        onClose={() => setShowNewAppointment(false)}
+        onSave={handleAppointmentSaved}
+      />
+
+      <NewPaymentModal
+        visible={showNewPayment}
+        onClose={() => setShowNewPayment(false)}
+        onSave={handlePaymentSaved}
+      />
     </View>
   );
 };
@@ -190,23 +279,61 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: spacing.md,
   },
-  actionButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   actionButton: {
-    flex: 0.48,
-    backgroundColor: colors.card,
-    borderRadius: normalize(16),
-    padding: spacing.lg,
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: normalize(12),
+    padding: spacing.md,
+    marginBottom: spacing.sm,
   },
   actionText: {
+    flex: 1,
     fontSize: normalize(16),
-    fontWeight: '400',
+    fontWeight: '500',
     color: colors.text,
-    textAlign: 'center',
-    marginTop: spacing.sm,
+    marginLeft: spacing.md,
+  },
+  todaySection: {
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  appointmentPreview: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: normalize(12),
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  appointmentInfo: {
+    flex: 1,
+  },
+  appointmentName: {
+    fontSize: normalize(16),
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  appointmentDetail: {
+    fontSize: normalize(14),
+    color: colors.textSecondary,
+  },
+  appointmentStatus: {
+    fontSize: normalize(12),
+    fontWeight: '600',
+    color: colors.success,
+    textTransform: 'uppercase',
+  },
+  viewAllButton: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+  },
+  viewAllText: {
+    fontSize: normalize(14),
+    fontWeight: '600',
+    color: colors.primary,
   },
 });
 

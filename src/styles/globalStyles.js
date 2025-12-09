@@ -214,4 +214,99 @@ export const globalStyles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 1000,
   },
+  
+  // Empty state
+  emptyState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.xxl,
+    paddingHorizontal: spacing.lg,
+  },
+  emptyStateTitle: {
+    fontSize: normalize(20),
+    fontWeight: '600',
+    color: colors.text,
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+  },
+  emptyStateText: {
+    fontSize: normalize(14),
+    fontWeight: '400',
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  
+  // Button variations
+  button: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.small,
+  },
+  iconButton: {
+    width: normalize(36),
+    height: normalize(36),
+    borderRadius: normalize(18),
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadows.small,
+  },
+  secondaryButtonText: {
+    color: colors.primary,
+  },
+  
+  // Card variations
+  cardTitle: {
+    fontSize: normalize(18),
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+  cardSubtitle: {
+    fontSize: normalize(14),
+    fontWeight: '600',
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
+  },
+  cardText: {
+    fontSize: normalize(14),
+    fontWeight: '400',
+    color: colors.textSecondary,
+    marginBottom: spacing.xs / 2,
+  },
+  
+  // Status badge variations
+  statusText: {
+    fontSize: normalize(10),
+    fontWeight: '700',
+    color: colors.text,
+  },
+  
+  // Radio options
+  radioOption: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.xs,
+  },
+  radioOptionSelected: {
+    backgroundColor: colors.primary + '20',
+    borderColor: colors.primary,
+  },
+  radioText: {
+    fontSize: normalize(14),
+    fontWeight: '400',
+    color: colors.text,
+  },
+  radioTextSelected: {
+    color: colors.primary,
+    fontWeight: '600',
+  },
 });
