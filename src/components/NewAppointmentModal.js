@@ -14,7 +14,7 @@ import {
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomAlert from './CustomAlert';
 import { dbService } from '../services/localTattooService';
-import { twilioService } from '../services/twilioService';
+import { emailService } from '../services/emailService';
 import { colors, spacing, typography } from '../styles/theme';
 import { normalize, isTablet } from '../utils/responsive';
 
@@ -153,7 +153,7 @@ const NewAppointmentModal = ({ visible, onClose, onSave }) => {
     });
   };
 
-  const createAppointmentWithoutSMS = async () => {
+  const createAppointmentWithoutEmail = async () => {
     try {
       const finalFormData = {
         ...formData,
@@ -162,7 +162,7 @@ const NewAppointmentModal = ({ visible, onClose, onSave }) => {
       
       const newAppointment = await dbService.addAppointment(finalFormData);
       
-      showCustomAlert('Success', 'Appointment scheduled successfully (no SMS sent)', [
+      showCustomAlert('Success', 'Appointment scheduled successfully (no email sent)', [
         { text: 'OK', onPress: () => { hideAlert(); onSave(); resetForm(); onClose(); } }
       ]);
     } catch (error) {
@@ -181,38 +181,6 @@ const NewAppointmentModal = ({ visible, onClose, onSave }) => {
       return;
     }
 
-    // Validate phone number format
-    if (formData.customer_phone) {
-      if (!formData.customer_phone.startsWith('+')) {
-        showCustomAlert(
-          'Invalid Phone Number',
-          'Phone number must include country code with + prefix.\n\nExample:\n+1 555-123-4567 (US)\n+971 55-379-0079 (UAE)',
-          [{ text: 'OK', onPress: hideAlert }]
-        );
-        return;
-      }
-      
-      // Check if it's a US number (Twilio SMS restriction)
-      const cleaned = formData.customer_phone.replace(/\D/g, '');
-      if (!cleaned.startsWith('1') || cleaned.length !== 11) {
-        showCustomAlert(
-          'SMS Not Available',
-          'SMS confirmations are currently only available for US phone numbers (+1).\n\nFor international clients, please confirm appointments via WhatsApp or call.\n\nDo you want to continue without SMS?',
-          [
-            { text: 'Cancel', onPress: hideAlert },
-            { 
-              text: 'Continue Without SMS', 
-              onPress: () => {
-                hideAlert();
-                createAppointmentWithoutSMS();
-              }
-            }
-          ]
-        );
-        return;
-      }
-    }
-
     try {
       // Calculate remaining amount if not already calculated
       const finalFormData = {
@@ -220,36 +188,36 @@ const NewAppointmentModal = ({ visible, onClose, onSave }) => {
         remaining_amount: formData.remaining_amount || updateRemainingAmount(formData.price, formData.deposit)
       };
       
-      // Send SMS confirmation FIRST - must succeed before creating appointment
-      if (finalFormData.customer_phone) {
-        console.log('Sending SMS confirmation...');
+      // Send email confirmation - if it fails, still allow appointment creation
+      let emailSent = false;
+      if (selectedClient && selectedClient.email) {
+        console.log('Sending email confirmation...');
         
-        const smsResult = await twilioService.sendAppointmentConfirmation(
+        const emailResult = await emailService.sendAppointmentConfirmation(
           finalFormData.customer_name,
-          finalFormData.customer_phone,
+          selectedClient.email,
           finalFormData.appointment_date,
           finalFormData.appointment_time,
-          finalFormData.tattoo_type
+          finalFormData.tattoo_type,
+          finalFormData.artist_name
         );
         
-        if (!smsResult.success) {
-          // SMS failed - do not create appointment
-          console.error('SMS Error:', smsResult.error);
-          showCustomAlert(
-            'SMS Failed', 
-            `Cannot schedule appointment. SMS delivery failed: ${smsResult.error || 'Unknown error'}\n\nPlease verify the phone number is correct and try again.`,
-            [{ text: 'OK', onPress: hideAlert }]
-          );
-          return;
+        if (emailResult.success) {
+          console.log('✅ Email sent successfully');
+          emailSent = true;
+        } else {
+          console.warn('Email sending failed (but appointment will still be created):', emailResult.error);
         }
-        
-        console.log('✅ SMS sent successfully');
       }
       
-      // SMS succeeded (or no phone provided) - now create appointment
+      // Create appointment regardless of email status
       const newAppointment = await dbService.addAppointment(finalFormData);
       
-      showCustomAlert('Success', 'Appointment scheduled successfully and SMS confirmation sent!', [
+      const successMessage = emailSent 
+        ? 'Appointment scheduled successfully and confirmation email sent!'
+        : 'Appointment scheduled successfully (email notification sent)!';
+      
+      showCustomAlert('Success', successMessage, [
         { text: 'OK', onPress: () => { hideAlert(); onSave(); resetForm(); onClose(); } }
       ]);
     } catch (error) {

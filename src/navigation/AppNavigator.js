@@ -11,6 +11,7 @@ import AdminDashboard from '../screens/admin/AdminDashboard';
 import AppointmentsScreen from '../screens/admin/AppointmentsScreen';
 import PaymentsScreen from '../screens/admin/PaymentsScreen';
 import AnalyticsScreen from '../screens/admin/AnalyticsScreen';
+import WorkerManagement from '../screens/admin/WorkerManagement';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -31,6 +32,8 @@ const AdminTabs = () => {
             iconName = focused ? 'card' : 'card-outline';
           } else if (route.name === 'Analytics') {
             iconName = focused ? 'stats-chart' : 'stats-chart-outline';
+          } else if (route.name === 'WorkerManagement') {
+            iconName = focused ? 'people' : 'people-outline';
           }
 
           return <Icon name={iconName} size={size} color={color} />;
@@ -73,6 +76,11 @@ const AdminTabs = () => {
         name="Analytics" 
         component={AnalyticsScreen}
         options={{ title: 'Analytics' }}
+      />
+      <Tab.Screen 
+        name="WorkerManagement" 
+        component={WorkerManagement}
+        options={{ title: 'Artists' }}
       />
     </Tab.Navigator>
   );

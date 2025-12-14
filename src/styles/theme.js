@@ -1,44 +1,44 @@
 import { normalize } from '../utils/responsive';
 
-// Color palette inspired by the MMA design theme
+// Color palette - Dark Yellow and Black Tattoo Shop Theme
 export const colors = {
-  // Dark theme base
-  background: '#1a1a1a',
-  surface: '#2a2a2a',
-  card: '#333333',
+  // Dark theme base (pure black)
+  background: '#0a0a0a',
+  surface: '#1a1a1a',
+  card: '#1a1a1a',
   
-  // Primary colors (bold orange/red for accents)
-  primary: '#ff6b35',
-  primaryLight: '#ff8c5a',
-  primaryDark: '#e55a2b',
+  // Primary colors (gold/dark yellow for accents)
+  primary: '#d4af37',      // Rich gold/dark yellow
+  primaryLight: '#e5c158', // Lighter gold
+  primaryDark: '#b8941d',  // Darker gold
   
-  // Secondary colors
-  secondary: '#4a90e2',
-  secondaryLight: '#6ba3e8',
-  secondaryDark: '#3a7bc8',
+  // Secondary colors (dark gold accent)
+  secondary: '#c9a961',    // Muted gold
+  secondaryLight: '#e0c074',
+  secondaryDark: '#9d7e3c',
   
   // Text colors
-  text: '#ffffff',
-  textSecondary: '#cccccc',
-  textMuted: '#999999',
+  text: '#f5f5f5',         // Off-white
+  textSecondary: '#cccccc', // Light gray
+  textMuted: '#888888',    // Medium gray
   
   // Status colors
-  success: '#28a745',
-  warning: '#ffc107',
-  error: '#dc3545',
-  info: '#17a2b8',
+  success: '#2d5016',      // Dark green (status badge)
+  warning: '#8b7500',      // Dark yellow (status badge)
+  error: '#8b0000',        // Dark red (status badge)
+  info: '#003d5c',         // Dark blue
   
   // UI colors
-  border: '#444444',
-  divider: '#555555',
-  shadow: '#000000',
+  border: '#333333',       // Dark gray borders
+  divider: '#2a2a2a',      // Dark dividers
+  shadow: '#000000',       // Black shadow
   
   // Gradient colors
-  gradientStart: '#ff6b35',
-  gradientEnd: '#e55a2b',
+  gradientStart: '#d4af37',
+  gradientEnd: '#9d7e3c',
   
-  // Chart colors
-  chartColors: ['#ff6b35', '#4a90e2', '#28a745', '#ffc107', '#dc3545', '#17a2b8'],
+  // Chart colors (dark yellow themed)
+  chartColors: ['#d4af37', '#c9a961', '#b8941d', '#9d7e3c', '#8b7500', '#6b5a0f'],
 };
 
 export const spacing = {

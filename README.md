@@ -899,6 +899,7 @@ PetraTatto/
 ## Key Dependencies
 
 ```json
+
 {
   "react": "19.1.0",
   "react-native": "0.80.2",
@@ -910,6 +911,7 @@ PetraTatto/
   "react-native-vector-icons": "^10.2.0",
   "axios": "^1.7.9"
 }
+
 ```
 
 ## Security Features

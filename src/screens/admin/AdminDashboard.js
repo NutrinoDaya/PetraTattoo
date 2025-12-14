@@ -15,6 +15,7 @@ import AppHeader from '../../components/AppHeader';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import NewAppointmentModal from '../../components/NewAppointmentModal';
 import NewPaymentModal from '../../components/NewPaymentModal';
+import WorkerManagementModal from '../../components/WorkerManagementModal';
 import { dbService } from '../../services/localTattooService';
 
 const AdminDashboard = ({ navigation }) => {
@@ -30,6 +31,7 @@ const AdminDashboard = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [showNewAppointment, setShowNewAppointment] = useState(false);
   const [showNewPayment, setShowNewPayment] = useState(false);
+  const [showWorkerManagement, setShowWorkerManagement] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
