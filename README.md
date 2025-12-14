@@ -1,6 +1,6 @@
 # Petra Tatto - Tattoo Shop Management App
 
-A comprehensive tattoo shop management application built with React Native, featuring appointment scheduling, payment tracking, client management, SMS notifications, and admin analytics. The app uses local AsyncStorage for reliable offline-first data persistence.
+A comprehensive tattoo shop management application built with React Native, featuring appointment scheduling, payment tracking, client management, email notifications, and admin analytics. The app uses local AsyncStorage for reliable offline-first data persistence with a premium dark gold and black design.
 
 ## Features
 
@@ -9,7 +9,7 @@ A comprehensive tattoo shop management application built with React Native, feat
 - 💰 **Payment Tracking**: Record payments, tips, and track earnings
 - 📊 **Personal Dashboard**: View daily/weekly/monthly statistics
 - 👤 **Profile Management**: Update personal information and portfolio
-- 🔔 **SMS Notifications**: Automatic appointment confirmations via Twilio
+- 📧 **Email Notifications**: Automatic appointment confirmations and reminders
 
 ### For Admin (Shop Owner)
 - 📈 **Analytics Dashboard**: Comprehensive insights with real-time metrics
@@ -20,9 +20,9 @@ A comprehensive tattoo shop management application built with React Native, feat
 - 🎯 **Business Intelligence**: Payment method analysis, trends, and forecasting
 
 ### Technical Features
-- 🌙 **Dark Theme**: Professional MMA-inspired design
+- 🌙 **Premium Dark Theme**: Dark gold (#d4af37) and black design - perfect for tattoo shops
 - 🔐 **Mock Authentication**: Role-based access control (admin/artist)
-- 📱 **SMS Notifications**: Twilio integration for appointment confirmations
+- 📧 **Email Notifications**: Send appointment confirmations and payment receipts
 - 💾 **Local Storage**: AsyncStorage-based database (offline-first)
 - 🎨 **Responsive Design**: Optimized for iPad landscape orientation
 - 🚀 **Production Ready**: Optimized for iOS deployment
@@ -91,28 +91,27 @@ The app uses mock authentication with these default credentials:
 - Password: `worker123`
 - Access to appointments, payments, and profile
 
-### SMS Notifications (Twilio)
-Configure Twilio for SMS appointment confirmations:
+### SMS Notifications (Email)
+The app sends appointment confirmations and payment receipts via email:
 
-1. Create file `src/config/twilioConfig.local.js`:
-```javascript
-export const TWILIO_CONFIG = {
-  accountSid: 'YOUR_TWILIO_ACCOUNT_SID',
-  authToken: 'YOUR_TWILIO_AUTH_TOKEN',
-  messagingServiceSid: 'YOUR_MESSAGING_SERVICE_SID',
-  apiUrl: 'https://api.twilio.com/2010-04-01',
-};
+**Email Features:**
+- Automatic appointment confirmation when scheduling
+- Appointment reminders 24 hours before
+- Payment confirmation when recording payments
+- Payment reminders for remaining balance
+- Email validation for all client communications
 
-export const validateTwilioConfig = () => {
-  return true; // Add validation logic
-};
-```
+**Configuration:**
+All emails are stored locally and can be viewed through the notification service. For production email sending, integrate with a backend email service like:
+- SendGrid
+- AWS SES
+- Mailgun
+- Firebase Cloud Functions
 
-2. SMS features:
-   - Appointment confirmations sent automatically
-   - US phone numbers (+1) supported
-   - International clients: app prompts for WhatsApp/call confirmation
-   - SMS can be skipped if delivery fails
+**To implement backend email:**
+1. Create a backend API endpoint for sending emails
+2. Update `emailService.js` to call your backend API
+3. The `emailService.sendEmail()` methods will then send real emails
 
 ### Styling & Theme
 Customize appearance in `src/styles/theme.js`:
@@ -675,39 +674,52 @@ showCustomAlert('Title', 'Message', [
 ## Design System
 
 ### Color Palette (`theme.js`)
+**Dark Gold and Black Tattoo Shop Theme:**
 ```javascript
-// Dark theme base
-background: '#1a1a1a'    // Main background
-surface: '#2a2a2a'       // Cards and modals
-card: '#333333'          // Secondary surfaces
+// Dark theme base (pure black)
+background: '#0a0a0a'    // Main background
+surface: '#1a1a1a'       // Cards and modals
+card: '#1a1a1a'          // Secondary surfaces
 
-// Primary colors
-primary: '#ff6b35'       // Orange/Red accent (buttons, highlights)
-primaryLight: '#ff8c5a'  // Lighter variant
-primaryDark: '#e55a2b'   // Darker variant
+// Primary colors (gold/dark yellow for accents)
+primary: '#d4af37'       // Rich gold/dark yellow
+primaryLight: '#e5c158'  // Lighter gold
+primaryDark: '#b8941d'   // Darker gold
 
-// Secondary colors
-secondary: '#4a90e2'     // Blue (info, secondary actions)
-secondaryLight: '#6ba3e8'
-secondaryDark: '#3a7bc8'
+// Secondary colors (dark gold accent)
+secondary: '#c9a961'     // Muted gold
+secondaryLight: '#e0c074'
+secondaryDark: '#9d7e3c'
 
 // Text colors
-text: '#ffffff'          // Primary text
-textSecondary: '#cccccc' // Secondary text
-textMuted: '#999999'     // Muted/disabled text
+text: '#f5f5f5'          // Off-white
+textSecondary: '#cccccc' // Light gray
+textMuted: '#888888'     // Medium gray
 
 // Status colors
-success: '#28a745'       // Completed, positive
-warning: '#ffc107'       // Scheduled, pending
-error: '#dc3545'         // Cancelled, errors
-info: '#17a2b8'          // Information
+success: '#2d5016'       // Dark green (status badge)
+warning: '#8b7500'       // Dark yellow (status badge)
+error: '#8b0000'         // Dark red (status badge)
+info: '#003d5c'          // Dark blue
 
-// UI elements
-border: '#444444'        // Input borders
-divider: '#555555'       // Section dividers
-shadow: '#000000'        // Shadow color
-disabled: '#666666'      // Disabled elements
+// UI colors
+border: '#333333'        // Dark gray borders
+divider: '#2a2a2a'       // Dark dividers
+shadow: '#000000'        // Black shadow
+
+// Gradient colors
+gradientStart: '#d4af37'
+gradientEnd: '#9d7e3c'
+
+// Chart colors (dark yellow themed)
+chartColors: ['#d4af37', '#c9a961', '#b8941d', '#9d7e3c', '#8b7500', '#6b5a0f']
 ```
+
+**Design Philosophy:**
+- **Premium Gold Accent (#d4af37)**: Represents quality, luxury, and the artistic nature of tattoos
+- **Pure Black Background (#0a0a0a)**: Professional, elegant, minimalist - perfect for tattoo industry
+- **Dark Surfaces (#1a1a1a)**: High contrast with gold for excellent readability and modern aesthetics
+- **Dark Status Colors**: All status indicators use dark variants to maintain consistency
 
 ### Typography System
 ```javascript
