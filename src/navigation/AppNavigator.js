@@ -1,7 +1,9 @@
 import React from 'react';
+import { Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { colors } from '../styles/theme';
 import { normalize } from '../utils/responsive';
@@ -18,6 +20,8 @@ const Tab = createBottomTabNavigator();
 
 // Admin Tab Navigation
 const AdminTabs = () => {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -32,8 +36,8 @@ const AdminTabs = () => {
             iconName = focused ? 'card' : 'card-outline';
           } else if (route.name === 'Analytics') {
             iconName = focused ? 'stats-chart' : 'stats-chart-outline';
-          } else if (route.name === 'WorkerManagement') {
-            iconName = focused ? 'people' : 'people-outline';
+          } else if (route.name === 'Manage') {
+            iconName = focused ? 'settings' : 'settings-outline';
           }
 
           return <Icon name={iconName} size={size} color={color} />;
@@ -44,8 +48,8 @@ const AdminTabs = () => {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          paddingBottom: 5,
-          height: normalize(60),
+          paddingBottom: Math.max(insets.bottom, 10),
+          height: normalize(60) + Math.max(insets.bottom, 10),
         },
         headerStyle: {
           backgroundColor: colors.surface,
@@ -78,9 +82,9 @@ const AdminTabs = () => {
         options={{ title: 'Analytics' }}
       />
       <Tab.Screen 
-        name="WorkerManagement" 
+        name="Manage" 
         component={WorkerManagement}
-        options={{ title: 'Artists' }}
+        options={{ title: 'Manage' }}
       />
     </Tab.Navigator>
   );

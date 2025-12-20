@@ -10,6 +10,7 @@ import {
   Modal,
   FlatList,
   SafeAreaView,
+  BackHandler,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomAlert from './CustomAlert';
@@ -52,6 +53,19 @@ const NewAppointmentModal = ({ visible, onClose, onSave }) => {
       loadData();
     }
   }, [visible]);
+
+  // Handle hardware back button
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (visible) {
+        onClose();
+        return true;
+      }
+      return false;
+    });
+
+    return () => backHandler.remove();
+  }, [visible, onClose]);
 
   const showCustomAlert = (title, message, buttons = []) => {
     setAlertConfig({ visible: true, title, message, buttons });
@@ -213,9 +227,16 @@ const NewAppointmentModal = ({ visible, onClose, onSave }) => {
       // Create appointment regardless of email status
       const newAppointment = await dbService.addAppointment(finalFormData);
       
-      const successMessage = emailSent 
-        ? 'Appointment scheduled successfully and confirmation email sent!'
-        : 'Appointment scheduled successfully (email notification sent)!';
+      let successMessage = 'Appointment scheduled successfully!';
+      if (emailSent) {
+        // Check if email was actually sent or simulated
+        const isConfigured = emailService.isConfigured();
+        if (isConfigured) {
+          successMessage = 'Appointment scheduled and confirmation email sent!';
+        } else {
+          successMessage = 'Appointment scheduled! (Email requires EmailJS setup - see emailService.js)';
+        }
+      }
       
       showCustomAlert('Success', successMessage, [
         { text: 'OK', onPress: () => { hideAlert(); onSave(); resetForm(); onClose(); } }

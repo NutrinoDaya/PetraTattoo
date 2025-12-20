@@ -1,12 +1,32 @@
 /**
  * Email Notification Service
  * Sends appointment confirmations and reminders via email
- * Uses nodemailer with SMTP
+ * Uses EmailJS API for sending emails from React Native
+ * 
+ * SETUP INSTRUCTIONS:
+ * 1. Go to https://www.emailjs.com/ and create a free account
+ * 2. Create an email service (connect your email provider like Gmail, Outlook, etc.)
+ * 3. Create an email template with these variables:
+ *    - {{to_email}} - recipient email
+ *    - {{to_name}} - recipient name  
+ *    - {{subject}} - email subject
+ *    - {{message}} - email body content
+ * 4. Get your Service ID, Template ID, and Public Key
+ * 5. Update the CONFIG object below with your credentials
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const EMAIL_HISTORY_KEY = 'PetraTattoo_email_history';
+
+// ⚠️ IMPORTANT: Replace these with your EmailJS credentials
+// Get them from: https://www.emailjs.com/
+const CONFIG = {
+  serviceId: 'YOUR_SERVICE_ID',      // e.g., 'service_abc123'
+  templateId: 'YOUR_TEMPLATE_ID',    // e.g., 'template_xyz789'  
+  publicKey: 'YOUR_PUBLIC_KEY',      // e.g., 'AbCdEfGhIjKlMnOp'
+  enabled: false,  // Set to true after configuring EmailJS
+};
 
 // Email templates
 const emailTemplates = {
@@ -119,14 +139,73 @@ class EmailService {
   }
 
   /**
-   * Send appointment confirmation email
-   * @param {string} clientName - Client full name
-   * @param {string} clientEmail - Client email address
-   * @param {string} date - Appointment date (YYYY-MM-DD)
-   * @param {string} time - Appointment time (HH:MM)
-   * @param {string} tattooType - Type of tattoo
-   * @param {string} artistName - Artist full name
+   * Send email using EmailJS API
+   * @param {string} toEmail - Recipient email
+   * @param {string} toName - Recipient name
+   * @param {string} subject - Email subject
+   * @param {string} message - Email body
    * @returns {Promise<{success: boolean, error?: string}>}
+   */
+  async sendEmailViaAPI(toEmail, toName, subject, message) {
+    if (!CONFIG.enabled) {
+      console.log('📧 EmailJS not configured. Email would be sent to:', toEmail);
+      console.log('📧 Subject:', subject);
+      console.log('📧 To enable real emails:');
+      console.log('   1. Go to https://www.emailjs.com/');
+      console.log('   2. Create account and get credentials');
+      console.log('   3. Update CONFIG in emailService.js');
+      console.log('   4. Set CONFIG.enabled = true');
+      
+      // Return success for demo purposes but note it's simulated
+      return {
+        success: true,
+        simulated: true,
+        message: 'Email simulated (EmailJS not configured)',
+      };
+    }
+
+    try {
+      // EmailJS API call
+      const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          service_id: CONFIG.serviceId,
+          template_id: CONFIG.templateId,
+          user_id: CONFIG.publicKey,
+          template_params: {
+            to_email: toEmail,
+            to_name: toName,
+            subject: subject,
+            message: message,
+          },
+        }),
+      });
+
+      if (response.ok) {
+        console.log('✅ Email sent successfully to:', toEmail);
+        return { success: true };
+      } else {
+        const errorText = await response.text();
+        console.error('EmailJS error:', errorText);
+        return {
+          success: false,
+          error: `Failed to send email: ${errorText}`,
+        };
+      }
+    } catch (error) {
+      console.error('Error sending email via EmailJS:', error);
+      return {
+        success: false,
+        error: error.message || 'Network error sending email',
+      };
+    }
+  }
+
+  /**
+   * Send appointment confirmation email
    */
   async sendAppointmentConfirmation(
     clientName,
@@ -137,7 +216,6 @@ class EmailService {
     artistName
   ) {
     try {
-      // Validate email
       if (!this.isValidEmail(clientEmail)) {
         return {
           success: false,
@@ -153,10 +231,17 @@ class EmailService {
         artistName
       );
 
-      // In production, this would call a backend API
-      // For now, we simulate successful sending
+      // Send email via API
+      const sendResult = await this.sendEmailViaAPI(
+        clientEmail,
+        clientName,
+        template.subject,
+        template.body
+      );
+
+      // Record in history
       const emailRecord = {
-        id: this.emailHistory.length + 1,
+        id: Date.now(),
         to: clientEmail,
         subject: template.subject,
         type: 'appointment_confirmation',
@@ -166,17 +251,18 @@ class EmailService {
         tattooType,
         artistName,
         sentAt: new Date().toISOString(),
-        status: 'sent',
+        status: sendResult.success ? 'sent' : 'failed',
+        simulated: sendResult.simulated || false,
       };
 
       this.emailHistory.push(emailRecord);
       await this.saveHistory();
 
-      console.log('✅ Appointment confirmation email sent to:', clientEmail);
-
       return {
-        success: true,
+        success: sendResult.success,
         emailId: emailRecord.id,
+        simulated: sendResult.simulated,
+        error: sendResult.error,
       };
     } catch (error) {
       console.error('Error sending appointment confirmation:', error);
@@ -189,12 +275,6 @@ class EmailService {
 
   /**
    * Send appointment reminder email
-   * @param {string} clientName - Client full name
-   * @param {string} clientEmail - Client email address
-   * @param {string} date - Appointment date (YYYY-MM-DD)
-   * @param {string} time - Appointment time (HH:MM)
-   * @param {string} artistName - Artist full name
-   * @returns {Promise<{success: boolean, error?: string}>}
    */
   async sendAppointmentReminder(clientName, clientEmail, date, time, artistName) {
     try {
@@ -207,8 +287,15 @@ class EmailService {
 
       const template = emailTemplates.appointmentReminder(clientName, date, time, artistName);
 
+      const sendResult = await this.sendEmailViaAPI(
+        clientEmail,
+        clientName,
+        template.subject,
+        template.body
+      );
+
       const emailRecord = {
-        id: this.emailHistory.length + 1,
+        id: Date.now(),
         to: clientEmail,
         subject: template.subject,
         type: 'appointment_reminder',
@@ -217,17 +304,18 @@ class EmailService {
         time,
         artistName,
         sentAt: new Date().toISOString(),
-        status: 'sent',
+        status: sendResult.success ? 'sent' : 'failed',
+        simulated: sendResult.simulated || false,
       };
 
       this.emailHistory.push(emailRecord);
       await this.saveHistory();
 
-      console.log('✅ Appointment reminder email sent to:', clientEmail);
-
       return {
-        success: true,
+        success: sendResult.success,
         emailId: emailRecord.id,
+        simulated: sendResult.simulated,
+        error: sendResult.error,
       };
     } catch (error) {
       console.error('Error sending appointment reminder:', error);
@@ -240,12 +328,6 @@ class EmailService {
 
   /**
    * Send payment confirmation email
-   * @param {string} clientName - Client full name
-   * @param {string} clientEmail - Client email address
-   * @param {number} amount - Payment amount
-   * @param {string} date - Payment date (YYYY-MM-DD)
-   * @param {string} tattooType - Type of tattoo
-   * @returns {Promise<{success: boolean, error?: string}>}
    */
   async sendPaymentConfirmation(clientName, clientEmail, amount, date, tattooType) {
     try {
@@ -258,8 +340,15 @@ class EmailService {
 
       const template = emailTemplates.paymentConfirmation(clientName, amount, date, tattooType);
 
+      const sendResult = await this.sendEmailViaAPI(
+        clientEmail,
+        clientName,
+        template.subject,
+        template.body
+      );
+
       const emailRecord = {
-        id: this.emailHistory.length + 1,
+        id: Date.now(),
         to: clientEmail,
         subject: template.subject,
         type: 'payment_confirmation',
@@ -268,17 +357,18 @@ class EmailService {
         date,
         tattooType,
         sentAt: new Date().toISOString(),
-        status: 'sent',
+        status: sendResult.success ? 'sent' : 'failed',
+        simulated: sendResult.simulated || false,
       };
 
       this.emailHistory.push(emailRecord);
       await this.saveHistory();
 
-      console.log('✅ Payment confirmation email sent to:', clientEmail);
-
       return {
-        success: true,
+        success: sendResult.success,
         emailId: emailRecord.id,
+        simulated: sendResult.simulated,
+        error: sendResult.error,
       };
     } catch (error) {
       console.error('Error sending payment confirmation:', error);
@@ -291,11 +381,6 @@ class EmailService {
 
   /**
    * Send payment reminder email
-   * @param {string} clientName - Client full name
-   * @param {string} clientEmail - Client email address
-   * @param {number} remainingAmount - Remaining balance
-   * @param {string} artistName - Artist full name
-   * @returns {Promise<{success: boolean, error?: string}>}
    */
   async sendPaymentReminder(clientName, clientEmail, remainingAmount, artistName) {
     try {
@@ -308,8 +393,15 @@ class EmailService {
 
       const template = emailTemplates.paymentReminder(clientName, remainingAmount, artistName);
 
+      const sendResult = await this.sendEmailViaAPI(
+        clientEmail,
+        clientName,
+        template.subject,
+        template.body
+      );
+
       const emailRecord = {
-        id: this.emailHistory.length + 1,
+        id: Date.now(),
         to: clientEmail,
         subject: template.subject,
         type: 'payment_reminder',
@@ -317,17 +409,18 @@ class EmailService {
         remainingAmount,
         artistName,
         sentAt: new Date().toISOString(),
-        status: 'sent',
+        status: sendResult.success ? 'sent' : 'failed',
+        simulated: sendResult.simulated || false,
       };
 
       this.emailHistory.push(emailRecord);
       await this.saveHistory();
 
-      console.log('✅ Payment reminder email sent to:', clientEmail);
-
       return {
-        success: true,
+        success: sendResult.success,
         emailId: emailRecord.id,
+        simulated: sendResult.simulated,
+        error: sendResult.error,
       };
     } catch (error) {
       console.error('Error sending payment reminder:', error);
@@ -340,7 +433,6 @@ class EmailService {
 
   /**
    * Get email history
-   * @returns {Array} Array of sent emails
    */
   getEmailHistory() {
     return this.emailHistory;
@@ -362,8 +454,6 @@ class EmailService {
 
   /**
    * Validate email format
-   * @param {string} email - Email address to validate
-   * @returns {boolean} True if valid email format
    */
   isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -371,8 +461,14 @@ class EmailService {
   }
 
   /**
+   * Check if EmailJS is configured
+   */
+  isConfigured() {
+    return CONFIG.enabled;
+  }
+
+  /**
    * Get email statistics
-   * @returns {Object} Statistics about sent emails
    */
   getStatistics() {
     const stats = {
@@ -381,6 +477,8 @@ class EmailService {
       reminders: this.emailHistory.filter((e) => e.type === 'appointment_reminder').length,
       paymentConfirmations: this.emailHistory.filter((e) => e.type === 'payment_confirmation').length,
       paymentReminders: this.emailHistory.filter((e) => e.type === 'payment_reminder').length,
+      simulated: this.emailHistory.filter((e) => e.simulated).length,
+      actuallySent: this.emailHistory.filter((e) => !e.simulated && e.status === 'sent').length,
     };
     return stats;
   }

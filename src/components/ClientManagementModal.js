@@ -11,6 +11,7 @@ import {
   Modal,
   FlatList,
   SafeAreaView,
+  BackHandler,
 } from 'react-native';
 import { dbService } from '../services/localTattooService';
 import { colors, spacing, typography } from '../styles/theme';
@@ -34,6 +35,23 @@ const ClientManagementModal = ({ visible, onClose, onUpdate }) => {
       loadClients();
     }
   }, [visible]);
+
+  // Handle hardware back button
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (showAddModal) {
+        setShowAddModal(false);
+        return true;
+      }
+      if (visible) {
+        onClose();
+        return true;
+      }
+      return false;
+    });
+
+    return () => backHandler.remove();
+  }, [visible, showAddModal, onClose]);
 
   const loadClients = async () => {
     try {

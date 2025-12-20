@@ -95,7 +95,7 @@ const AdminDashboard = ({ navigation }) => {
   return (
     <View style={globalStyles.container}>
       <AppHeader 
-        title="Admin Dashboard" 
+        title="PetraTattoo Admin Dashboard" 
         subtitle="Shop Overview & Analytics"
       />
       <ScrollView

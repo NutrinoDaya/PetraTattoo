@@ -11,6 +11,7 @@ import {
   Modal,
   FlatList,
   SafeAreaView,
+  BackHandler,
 } from 'react-native';
 import CustomAlert from './CustomAlert';
 import { dbService } from '../services/localTattooService';
@@ -57,6 +58,25 @@ const NewPaymentModal = ({ visible, onClose, onSave }) => {
       loadData();
     }
   }, [visible]);
+
+  // Handle hardware back button
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (showWorkerPicker || showClientPicker || showAppointmentPicker) {
+        setShowWorkerPicker(false);
+        setShowClientPicker(false);
+        setShowAppointmentPicker(false);
+        return true;
+      }
+      if (visible) {
+        onClose();
+        return true;
+      }
+      return false;
+    });
+
+    return () => backHandler.remove();
+  }, [visible, showWorkerPicker, showClientPicker, showAppointmentPicker, onClose]);
 
   const loadData = async () => {
     try {
