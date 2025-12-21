@@ -10,12 +10,13 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
+  useWindowDimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../utils/authContext';
 import { globalStyles } from '../styles/globalStyles';
 import { colors, spacing } from '../styles/theme';
-import { normalize, isTablet, wp } from '../utils/responsive';
+import { normalize } from '../utils/responsive';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PetraLogo from '../components/PetraLogo';
 
@@ -24,6 +25,11 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading } = useAuth();
+  
+  // Dynamic responsive values
+  const { width, height } = useWindowDimensions();
+  const isTabletLayout = width >= 768;
+  const isLandscape = width > height;
 
   const handleLogin = async () => {
     if (!username.trim() || !password.trim()) {
@@ -65,11 +71,15 @@ const LoginScreen = ({ navigation }) => {
           >
             {/* Logo Section */}
             <View style={styles.logoContainer}>
-              <PetraLogo size={isTablet() ? "xlarge" : "large"} showText={true} />
+              <PetraLogo size={isTabletLayout ? "xlarge" : "large"} showText={true} />
             </View>
 
             {/* Login Form */}
-            <View style={styles.formContainer}>
+            <View style={[
+              styles.formContainer,
+              isTabletLayout && styles.formContainerTablet,
+              isLandscape && isTabletLayout && styles.formContainerLandscape,
+            ]}>
               <Text style={styles.formTitle}>Sign In</Text>
               
               <View style={styles.inputContainer}>
@@ -167,7 +177,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xxl,
-    alignItems: 'center', // Center content horizontally
+    alignItems: 'center',
   },
   logoContainer: {
     alignItems: 'center',
@@ -185,8 +195,17 @@ const styles = StyleSheet.create({
     borderRadius: normalize(16),
     padding: spacing.lg,
     marginBottom: spacing.xxl,
-    width: isTablet() ? '60%' : '100%', // Limit width on tablet
-    maxWidth: 600, // Max width for very large screens
+    width: '100%',
+    maxWidth: 400,
+  },
+  formContainerTablet: {
+    width: '60%',
+    maxWidth: 500,
+    padding: spacing.xl,
+  },
+  formContainerLandscape: {
+    width: '40%',
+    maxWidth: 450,
   },
   formTitle: {
     fontSize: normalize(28),

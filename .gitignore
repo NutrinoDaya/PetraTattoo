@@ -84,3 +84,6 @@ temp.txt
 # Credentials - DO NOT COMMIT
 src/config/twilioConfig.local.js
 src/config/*.local.js
+src/config/emailConfig.js
+.env
+.env.local

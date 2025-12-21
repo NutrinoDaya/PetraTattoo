@@ -1,117 +1,106 @@
 /**
  * Email Notification Service
  * Sends appointment confirmations and reminders via email
- * Uses EmailJS API for sending emails from React Native
+ * Uses Brevo API for sending emails from React Native
  * 
  * SETUP INSTRUCTIONS:
- * 1. Go to https://www.emailjs.com/ and create a free account
- * 2. Create an email service (connect your email provider like Gmail, Outlook, etc.)
- * 3. Create an email template with these variables:
- *    - {{to_email}} - recipient email
- *    - {{to_name}} - recipient name  
- *    - {{subject}} - email subject
- *    - {{message}} - email body content
- * 4. Get your Service ID, Template ID, and Public Key
- * 5. Update the CONFIG object below with your credentials
+ * 1. Get your API Key from Brevo (Sendinblue)
+ * 2. Update the BREVO_CONFIG object below
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { EMAIL_CONFIG } from '../config/emailConfig';
 
 const EMAIL_HISTORY_KEY = 'PetraTattoo_email_history';
 
-// ⚠️ IMPORTANT: Replace these with your EmailJS credentials
-// Get them from: https://www.emailjs.com/
-const CONFIG = {
-  serviceId: 'YOUR_SERVICE_ID',      // e.g., 'service_abc123'
-  templateId: 'YOUR_TEMPLATE_ID',    // e.g., 'template_xyz789'  
-  publicKey: 'YOUR_PUBLIC_KEY',      // e.g., 'AbCdEfGhIjKlMnOp'
-  enabled: false,  // Set to true after configuring EmailJS
+// Brevo API Configuration
+const BREVO_CONFIG = {
+  apiKey: EMAIL_CONFIG.BREVO_API_KEY,
+  senderEmail: EMAIL_CONFIG.BREVO_SENDER_EMAIL,
+  senderName: EMAIL_CONFIG.BREVO_SENDER_NAME
 };
 
-// Email templates
+// Email templates using Brevo Dynamic Content pattern
 const emailTemplates = {
   appointmentConfirmation: (clientName, date, time, tattooType, artistName) => ({
     subject: 'Tattoo Appointment Confirmation - Petra Tattoo Shop',
-    body: `
-Dear ${clientName},
-
-Your tattoo appointment has been confirmed!
-
-📅 Date: ${date}
-🕐 Time: ${time}
-🎨 Tattoo Type: ${tattooType}
-👤 Artist: ${artistName}
-
-We're excited to create your tattoo! Please arrive 5-10 minutes early.
-
-If you need to reschedule or cancel, please contact us at least 24 hours in advance.
-
-Best regards,
-Petra Tattoo Shop Team
-    `.trim(),
+    htmlContent: `
+      <html>
+        <body style="font-family: sans-serif; line-height: 1.6; color: #333;">
+          <h2 style="color: #D4AF37;">Petra Tattoo Shop</h2>
+          <p>Dear {{params.clientName}},</p>
+          <p>Your tattoo appointment has been confirmed!</p>
+          <div style="background: #f4f4f4; padding: 15px; border-radius: 5px;">
+            <p>📅 <strong>Date:</strong> {{params.date}}</p>
+            <p>🕐 <strong>Time:</strong> {{params.time}}</p>
+            <p>🎨 <strong>Tattoo Type:</strong> {{params.tattooType}}</p>
+            <p>👤 <strong>Artist:</strong> {{params.artistName}}</p>
+          </div>
+          <p>We're excited to create your tattoo! Please arrive 5-10 minutes early.</p>
+          <p>Best regards,<br>Petra Tattoo Shop Team</p>
+        </body>
+      </html>
+    `,
+    params: { clientName, date, time, tattooType, artistName }
   }),
 
   appointmentReminder: (clientName, date, time, artistName) => ({
     subject: 'Reminder: Your Tattoo Appointment Tomorrow - Petra Tattoo Shop',
-    body: `
-Hello ${clientName},
-
-This is a friendly reminder about your upcoming tattoo appointment!
-
-📅 Date: ${date}
-🕐 Time: ${time}
-👤 Artist: ${artistName}
-
-Please remember to:
-- Arrive 5-10 minutes early
-- Avoid alcohol and caffeine before appointment
-- Wear comfortable, loose-fitting clothing
-- Bring a valid ID
-
-If you have any questions, feel free to contact us.
-
-See you soon!
-Petra Tattoo Shop Team
-    `.trim(),
+    htmlContent: `
+      <html>
+        <body style="font-family: sans-serif; line-height: 1.6; color: #333;">
+          <h2 style="color: #D4AF37;">Petra Tattoo Shop</h2>
+          <p>Hello {{params.clientName}},</p>
+          <p>This is a friendly reminder about your upcoming tattoo appointment!</p>
+          <div style="background: #f4f4f4; padding: 15px; border-radius: 5px;">
+            <p>📅 <strong>Date:</strong> {{params.date}}</p>
+            <p>🕐 <strong>Time:</strong> {{params.time}}</p>
+            <p>👤 <strong>Artist:</strong> {{params.artistName}}</p>
+          </div>
+          <p>See you soon!<br>Petra Tattoo Shop Team</p>
+        </body>
+      </html>
+    `,
+    params: { clientName, date, time, artistName }
   }),
 
   paymentConfirmation: (clientName, amount, date, tattooType) => ({
     subject: 'Payment Confirmation - Petra Tattoo Shop',
-    body: `
-Dear ${clientName},
-
-Thank you for your payment!
-
-💰 Amount: $${amount.toFixed(2)}
-📅 Date: ${date}
-🎨 Tattoo: ${tattooType}
-
-Your tattoo is now marked as completed. Thank you for choosing Petra Tattoo Shop!
-
-We hope to see you again soon.
-
-Best regards,
-Petra Tattoo Shop Team
-    `.trim(),
+    htmlContent: `
+      <html>
+        <body style="font-family: sans-serif; line-height: 1.6; color: #333;">
+          <h2 style="color: #D4AF37;">Petra Tattoo Shop</h2>
+          <p>Dear {{params.clientName}},</p>
+          <p>Thank you for your payment!</p>
+          <div style="background: #f4f4f4; padding: 15px; border-radius: 5px;">
+            <p>💰 <strong>Amount:</strong> \${{params.amount}}</p>
+            <p>📅 <strong>Date:</strong> {{params.date}}</p>
+            <p>🎨 <strong>Tattoo:</strong> {{params.tattooType}}</p>
+          </div>
+          <p>Thank you for choosing Petra Tattoo Shop!</p>
+        </body>
+      </html>
+    `,
+    params: { clientName, amount: amount.toFixed(2), date, tattooType }
   }),
 
   paymentReminder: (clientName, amount, artistName) => ({
     subject: 'Payment Reminder - Petra Tattoo Shop',
-    body: `
-Hello ${clientName},
-
-We wanted to remind you about your remaining balance for your recent tattoo session.
-
-💰 Remaining Amount: $${amount.toFixed(2)}
-👤 Artist: ${artistName}
-
-Please let us know when you'd like to settle the balance. You can reach us by phone or email.
-
-Thank you for your business!
-
-Best regards,
-Petra Tattoo Shop Team
-    `.trim(),
+    htmlContent: `
+      <html>
+        <body style="font-family: sans-serif; line-height: 1.6; color: #333;">
+          <h2 style="color: #D4AF37;">Petra Tattoo Shop</h2>
+          <p>Hello {{params.clientName}},</p>
+          <p>We wanted to remind you about your remaining balance.</p>
+          <div style="background: #f4f4f4; padding: 15px; border-radius: 5px;">
+            <p>💰 <strong>Remaining Amount:</strong> \${{params.amount}}</p>
+            <p>👤 <strong>Artist:</strong> {{params.artistName}}</p>
+          </div>
+          <p>Best regards,<br>Petra Tattoo Shop Team</p>
+        </body>
+      </html>
+    `,
+    params: { clientName, amount: amount.toFixed(2), artistName }
   }),
 };
 
@@ -139,67 +128,57 @@ class EmailService {
   }
 
   /**
-   * Send email using EmailJS API
+   * Send email using Brevo Transactional API with Dynamic Content
    * @param {string} toEmail - Recipient email
    * @param {string} toName - Recipient name
    * @param {string} subject - Email subject
-   * @param {string} message - Email body
+   * @param {string} htmlContent - HTML with {{params.xxx}} placeholders
+   * @param {Object} params - Object containing values for placeholders
    * @returns {Promise<{success: boolean, error?: string}>}
    */
-  async sendEmailViaAPI(toEmail, toName, subject, message) {
-    if (!CONFIG.enabled) {
-      console.log('📧 EmailJS not configured. Email would be sent to:', toEmail);
-      console.log('📧 Subject:', subject);
-      console.log('📧 To enable real emails:');
-      console.log('   1. Go to https://www.emailjs.com/');
-      console.log('   2. Create account and get credentials');
-      console.log('   3. Update CONFIG in emailService.js');
-      console.log('   4. Set CONFIG.enabled = true');
-      
-      // Return success for demo purposes but note it's simulated
-      return {
-        success: true,
-        simulated: true,
-        message: 'Email simulated (EmailJS not configured)',
-      };
-    }
-
+  async sendEmailViaAPI(toEmail, toName, subject, htmlContent, params) {
     try {
-      // EmailJS API call
-      const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-        method: 'POST',
+      console.log(`Attempting to send dynamic email to ${toEmail}...`);
+
+      const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "accept": "application/json",
+          "api-key": BREVO_CONFIG.apiKey,
+          "content-type": "application/json",
         },
         body: JSON.stringify({
-          service_id: CONFIG.serviceId,
-          template_id: CONFIG.templateId,
-          user_id: CONFIG.publicKey,
-          template_params: {
-            to_email: toEmail,
-            to_name: toName,
-            subject: subject,
-            message: message,
+          sender: { 
+            name: BREVO_CONFIG.senderName, 
+            email: BREVO_CONFIG.senderEmail 
           },
+          to: [{ 
+            email: toEmail, 
+            name: toName 
+          }],
+          subject: subject,
+          htmlContent: htmlContent,
+          params: params
         }),
       });
 
+      const result = await response.json();
+
       if (response.ok) {
-        console.log('✅ Email sent successfully to:', toEmail);
-        return { success: true };
+        console.log('✅ Brevo API Success:', result);
+        return { success: true, messageId: result.messageId };
       } else {
-        const errorText = await response.text();
-        console.error('EmailJS error:', errorText);
+        console.error('❌ Brevo API Error:', result);
         return {
           success: false,
-          error: `Failed to send email: ${errorText}`,
+          error: result.message || 'Failed to send email'
         };
       }
     } catch (error) {
-      console.error('Error sending email via EmailJS:', error);
+      console.error('❌ Network Error:', error);
       return {
         success: false,
-        error: error.message || 'Network error sending email',
+        error: 'Network error. Please check your internet connection.'
       };
     }
   }
@@ -231,12 +210,13 @@ class EmailService {
         artistName
       );
 
-      // Send email via API
+      // Send email via API using dynamic content
       const sendResult = await this.sendEmailViaAPI(
         clientEmail,
         clientName,
         template.subject,
-        template.body
+        template.htmlContent,
+        template.params
       );
 
       // Record in history
@@ -252,7 +232,6 @@ class EmailService {
         artistName,
         sentAt: new Date().toISOString(),
         status: sendResult.success ? 'sent' : 'failed',
-        simulated: sendResult.simulated || false,
       };
 
       this.emailHistory.push(emailRecord);
@@ -261,7 +240,6 @@ class EmailService {
       return {
         success: sendResult.success,
         emailId: emailRecord.id,
-        simulated: sendResult.simulated,
         error: sendResult.error,
       };
     } catch (error) {
@@ -291,7 +269,8 @@ class EmailService {
         clientEmail,
         clientName,
         template.subject,
-        template.body
+        template.htmlContent,
+        template.params
       );
 
       const emailRecord = {
@@ -305,7 +284,6 @@ class EmailService {
         artistName,
         sentAt: new Date().toISOString(),
         status: sendResult.success ? 'sent' : 'failed',
-        simulated: sendResult.simulated || false,
       };
 
       this.emailHistory.push(emailRecord);
@@ -314,7 +292,6 @@ class EmailService {
       return {
         success: sendResult.success,
         emailId: emailRecord.id,
-        simulated: sendResult.simulated,
         error: sendResult.error,
       };
     } catch (error) {
@@ -344,7 +321,8 @@ class EmailService {
         clientEmail,
         clientName,
         template.subject,
-        template.body
+        template.htmlContent,
+        template.params
       );
 
       const emailRecord = {
@@ -358,7 +336,6 @@ class EmailService {
         tattooType,
         sentAt: new Date().toISOString(),
         status: sendResult.success ? 'sent' : 'failed',
-        simulated: sendResult.simulated || false,
       };
 
       this.emailHistory.push(emailRecord);
@@ -367,7 +344,6 @@ class EmailService {
       return {
         success: sendResult.success,
         emailId: emailRecord.id,
-        simulated: sendResult.simulated,
         error: sendResult.error,
       };
     } catch (error) {
@@ -397,7 +373,8 @@ class EmailService {
         clientEmail,
         clientName,
         template.subject,
-        template.body
+        template.htmlContent,
+        template.params
       );
 
       const emailRecord = {
@@ -410,7 +387,6 @@ class EmailService {
         artistName,
         sentAt: new Date().toISOString(),
         status: sendResult.success ? 'sent' : 'failed',
-        simulated: sendResult.simulated || false,
       };
 
       this.emailHistory.push(emailRecord);
@@ -419,7 +395,6 @@ class EmailService {
       return {
         success: sendResult.success,
         emailId: emailRecord.id,
-        simulated: sendResult.simulated,
         error: sendResult.error,
       };
     } catch (error) {
@@ -461,10 +436,10 @@ class EmailService {
   }
 
   /**
-   * Check if EmailJS is configured
+   * Check if Email Service is configured
    */
   isConfigured() {
-    return CONFIG.enabled;
+    return true; // Always true as we assume server is running
   }
 
   /**

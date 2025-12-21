@@ -6,16 +6,22 @@ import {
   TouchableOpacity,
   RefreshControl,
   StyleSheet,
+  useWindowDimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { globalStyles } from '../../styles/globalStyles';
 import { colors, spacing } from '../../styles/theme';
-import { normalize, isTablet } from '../../utils/responsive';
+import { normalize } from '../../utils/responsive';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import PetraLogo from '../../components/PetraLogo';
 import ApiService from '../../services/apiService';
 
 const WorkerDashboard = ({ navigation }) => {
+  // Dynamic responsive values
+  const { width, height } = useWindowDimensions();
+  const isTabletLayout = width >= 768;
+  const isLandscape = width > height;
+
   const [dashboardData, setDashboardData] = useState({
     todayAppointments: [],
     upcomingAppointments: [],
@@ -108,10 +114,10 @@ const WorkerDashboard = ({ navigation }) => {
         />
       }
     >
-      <View style={styles.contentContainer}>
+      <View style={[styles.contentContainer, isTabletLayout && styles.contentContainerTablet]}>
         {/* Logo Header */}
         <View style={styles.logoHeader}>
-          <PetraLogo size={isTablet() ? "medium" : "medium"} />
+          <PetraLogo size={isTabletLayout ? "medium" : "medium"} />
         </View>
 
         {/* Header */}
@@ -241,8 +247,11 @@ const WorkerDashboard = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   contentContainer: {
-    width: isTablet() ? '70%' : '100%',
+    width: '100%',
     alignSelf: 'center',
+  },
+  contentContainerTablet: {
+    width: '70%',
   },
   logoHeader: {
     alignItems: 'center',

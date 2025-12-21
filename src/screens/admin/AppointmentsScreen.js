@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   StyleSheet,
+  useWindowDimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -16,9 +17,14 @@ import AppHeader from '../../components/AppHeader';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import NewAppointmentModal from '../../components/NewAppointmentModal';
 import CustomAlert from '../../components/CustomAlert';
-import { normalize, isTablet } from '../../utils/responsive';
+import { normalize } from '../../utils/responsive';
 
 const AppointmentsScreen = () => {
+  // Dynamic responsive values
+  const { width, height } = useWindowDimensions();
+  const isTabletLayout = width >= 768;
+  const isLandscape = width > height;
+  
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -169,7 +175,10 @@ const AppointmentsScreen = () => {
     <View style={globalStyles.container}>
       <AppHeader title="Manage Appointments" />
       
-      <View style={styles.contentContainer}>
+      <View style={[
+        styles.contentContainer,
+        isTabletLayout && styles.contentContainerTablet,
+      ]}>
         {/* Add New Appointment Button */}
         <TouchableOpacity
           style={[globalStyles.button, styles.addButton]}
@@ -338,8 +347,12 @@ const AppointmentsScreen = () => {
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
-    width: isTablet() ? '70%' : '100%',
+    width: '100%',
     alignSelf: 'center',
+  },
+  contentContainerTablet: {
+    width: '85%',
+    maxWidth: 900,
   },
   addButton: {
     marginHorizontal: spacing.lg,

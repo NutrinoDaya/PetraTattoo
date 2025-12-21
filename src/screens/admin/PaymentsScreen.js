@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   StyleSheet,
+  useWindowDimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -16,9 +17,13 @@ import AppHeader from '../../components/AppHeader';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import NewPaymentModal from '../../components/NewPaymentModal';
 import CustomAlert from '../../components/CustomAlert';
-import { normalize, isTablet } from '../../utils/responsive';
+import { normalize } from '../../utils/responsive';
 
 const PaymentsScreen = () => {
+  // Dynamic responsive values
+  const { width, height } = useWindowDimensions();
+  const isTabletLayout = width >= 768;
+  const isLandscape = width > height;
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -129,7 +134,7 @@ const PaymentsScreen = () => {
     <View style={globalStyles.container}>
       <AppHeader title="Manage Payments" />
       
-      <View style={styles.contentContainer}>
+      <View style={[styles.contentContainer, isTabletLayout && styles.contentContainerTablet]}>
         {/* Add New Payment Button */}
         <TouchableOpacity
           style={[globalStyles.button, styles.addButton]}
@@ -285,8 +290,12 @@ const PaymentsScreen = () => {
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
-    width: isTablet() ? '70%' : '100%',
+    width: '100%',
     alignSelf: 'center',
+  },
+  contentContainerTablet: {
+    width: '85%',
+    maxWidth: 900,
   },
   addButton: {
     marginHorizontal: spacing.lg,

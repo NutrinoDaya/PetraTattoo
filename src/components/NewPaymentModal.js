@@ -12,13 +12,20 @@ import {
   FlatList,
   SafeAreaView,
   BackHandler,
+  useWindowDimensions,
 } from 'react-native';
 import CustomAlert from './CustomAlert';
 import { dbService } from '../services/localTattooService';
+import { emailService } from '../services/emailService';
 import { colors, spacing, typography } from '../styles/theme';
-import { normalize, isTablet } from '../utils/responsive';
+import { normalize } from '../utils/responsive';
 
 const NewPaymentModal = ({ visible, onClose, onSave }) => {
+  // Dynamic responsive values
+  const { width, height } = useWindowDimensions();
+  const isTabletLayout = width >= 768;
+  const isLandscape = width > height;
+
   const [formData, setFormData] = useState({
     client_id: '',
     worker_id: '',
@@ -43,6 +50,7 @@ const NewPaymentModal = ({ visible, onClose, onSave }) => {
   const [showClientPicker, setShowClientPicker] = useState(false);
   const [showAppointmentPicker, setShowAppointmentPicker] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', buttons: [] });
 
   const showCustomAlert = (title, message, buttons = []) => {
@@ -139,6 +147,9 @@ const NewPaymentModal = ({ visible, onClose, onSave }) => {
   };
 
   const handleSave = async () => {
+    // Prevent duplicate submissions
+    if (saving) return;
+    
     if (!formData.appointment_id) {
       showCustomAlert('Validation Error', 'Please select an appointment', [
         { text: 'OK', onPress: hideAlert }
@@ -154,13 +165,43 @@ const NewPaymentModal = ({ visible, onClose, onSave }) => {
     }
 
     try {
+      setSaving(true);
+      
       // Add the payment
       await dbService.addPayment(formData);
       
       // Update appointment status to 'completed'
       await dbService.updateAppointmentStatus(formData.appointment_id, 'completed');
       
-      showCustomAlert('Success', 'Payment recorded successfully and appointment marked as completed', [
+      // Send payment confirmation email
+      let emailSent = false;
+      if (selectedClient && selectedClient.email) {
+        console.log('Sending payment confirmation email to:', selectedClient.email);
+        
+        const emailResult = await emailService.sendPaymentConfirmation(
+          formData.customer_name,
+          selectedClient.email,
+          parseFloat(formData.amount) + parseFloat(formData.tip_amount || 0),
+          formData.payment_date,
+          formData.tattoo_type
+        );
+        
+        if (emailResult.success) {
+          console.log('✅ Payment confirmation email sent successfully');
+          emailSent = true;
+        } else {
+          console.warn('Payment email failed (but payment was recorded):', emailResult.error);
+        }
+      }
+      
+      let successMessage = 'Payment recorded successfully and appointment marked as completed';
+      if (emailSent) {
+        successMessage = 'Payment recorded, appointment completed, and confirmation email sent!';
+      } else if (selectedClient && !selectedClient.email) {
+        successMessage = 'Payment recorded! (No email sent - client has no email on file)';
+      }
+      
+      showCustomAlert('Success', successMessage, [
         { text: 'OK', onPress: () => { hideAlert(); onSave(); resetForm(); onClose(); } }
       ]);
     } catch (error) {
@@ -168,6 +209,8 @@ const NewPaymentModal = ({ visible, onClose, onSave }) => {
       showCustomAlert('Error', 'Failed to save payment', [
         { text: 'OK', onPress: hideAlert }
       ]);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -213,7 +256,7 @@ const NewPaymentModal = ({ visible, onClose, onSave }) => {
           <View style={{ width: 60 }} />
         </View>
 
-        <View style={styles.contentContainer}>
+        <View style={[styles.contentContainer, isTabletLayout && styles.contentContainerTablet]}>
           <ScrollView style={styles.form} contentContainerStyle={{ paddingBottom: spacing.xl }}>
             {/* Quick Select from Appointment */}
             <Text style={styles.label}>Select from Appointment (Optional)</Text>
@@ -320,8 +363,19 @@ const NewPaymentModal = ({ visible, onClose, onSave }) => {
             />
 
             {/* Save Button */}
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.saveButtonText}>💳 Record Payment</Text>
+            <TouchableOpacity 
+              style={[styles.saveButton, saving && styles.saveButtonDisabled]} 
+              onPress={handleSave}
+              disabled={saving}
+            >
+              {saving ? (
+                <View style={styles.savingContainer}>
+                  <ActivityIndicator size="small" color={colors.surface} />
+                  <Text style={styles.saveButtonText}>  Recording...</Text>
+                </View>
+              ) : (
+                <Text style={styles.saveButtonText}>💳 Record Payment</Text>
+              )}
             </TouchableOpacity>
 
             <View style={{ height: 20 }} />
@@ -431,9 +485,12 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    width: isTablet() ? '70%' : '100%',
+    width: '100%',
     alignSelf: 'center',
     maxWidth: 800,
+  },
+  contentContainerTablet: {
+    width: '70%',
   },
   header: {
     flexDirection: 'row',
@@ -521,10 +578,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: spacing.lg,
   },
+  saveButtonDisabled: {
+    opacity: 0.7,
+  },
   saveButtonText: {
     color: '#000',
     fontSize: normalize(16),
     fontWeight: '700',
+  },
+  savingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pickerContainer: {
     flex: 1,

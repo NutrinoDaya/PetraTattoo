@@ -12,12 +12,18 @@ import {
   FlatList,
   SafeAreaView,
   BackHandler,
+  useWindowDimensions,
 } from 'react-native';
 import { dbService } from '../services/localTattooService';
 import { colors, spacing, typography } from '../styles/theme';
-import { normalize, isTablet } from '../utils/responsive';
+import { normalize } from '../utils/responsive';
 
 const ClientManagementModal = ({ visible, onClose, onUpdate }) => {
+  // Dynamic responsive values
+  const { width, height } = useWindowDimensions();
+  const isTabletLayout = width >= 768;
+  const isLandscape = width > height;
+
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -165,7 +171,7 @@ const ClientManagementModal = ({ visible, onClose, onUpdate }) => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.contentContainer}>
+        <View style={[styles.contentContainer, isTabletLayout && styles.contentContainerTablet]}>
           {clients.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>No clients added yet</Text>
@@ -226,7 +232,7 @@ const ClientManagementModal = ({ visible, onClose, onUpdate }) => {
               <View style={{ width: 60 }} />
             </View>
 
-            <View style={styles.contentContainer}>
+            <View style={[styles.contentContainer, isTabletLayout && styles.contentContainerTablet]}>
               <ScrollView style={styles.form}>
                 <Text style={styles.label}>Full Name *</Text>
                 <TextInput
@@ -309,9 +315,12 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    width: isTablet() ? '70%' : '100%',
+    width: '100%',
     alignSelf: 'center',
     maxWidth: 800,
+  },
+  contentContainerTablet: {
+    width: '70%',
   },
   header: {
     flexDirection: 'row',

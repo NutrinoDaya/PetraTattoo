@@ -6,11 +6,12 @@ import {
   TouchableOpacity,
   RefreshControl,
   StyleSheet,
+  useWindowDimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { globalStyles } from '../../styles/globalStyles';
 import { colors, spacing } from '../../styles/theme';
-import { normalize, isTablet } from '../../utils/responsive';
+import { normalize } from '../../utils/responsive';
 import AppHeader from '../../components/AppHeader';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import NewAppointmentModal from '../../components/NewAppointmentModal';
@@ -19,6 +20,11 @@ import WorkerManagementModal from '../../components/WorkerManagementModal';
 import { dbService } from '../../services/localTattooService';
 
 const AdminDashboard = ({ navigation }) => {
+  // Dynamic responsive values
+  const { width, height } = useWindowDimensions();
+  const isTabletLayout = width >= 768;
+  const isLandscape = width > height;
+  
   const [dashboardData, setDashboardData] = useState({
     todayRevenue: 0,
     monthlyRevenue: 0,
@@ -107,11 +113,18 @@ const AdminDashboard = ({ navigation }) => {
             tintColor={colors.primary}
           />
         }
-      >
-        <View style={styles.contentContainer}>
+        >
+        <View style={[
+          styles.contentContainer,
+          isTabletLayout && styles.contentContainerTablet,
+          isLandscape && isTabletLayout && styles.contentContainerLandscape,
+        ]}>
           {/* Stats Cards */}
           <View style={styles.statsContainer}>
-            <View style={styles.statsRow}>
+            <View style={[
+              styles.statsRow,
+              isTabletLayout && styles.statsRowTablet,
+            ]}>
               <View style={[styles.statCard, { backgroundColor: colors.primary + '20' }]}>
                 <Ionicons name="cash" size={normalize(24)} color={colors.primary} />
                 <Text style={styles.statValue}>{formatCurrency(dashboardData.monthlyRevenue)}</Text>
@@ -124,7 +137,10 @@ const AdminDashboard = ({ navigation }) => {
               </View>
             </View>
             
-            <View style={styles.statsRow}>
+            <View style={[
+              styles.statsRow,
+              isTabletLayout && styles.statsRowTablet,
+            ]}>
               <View style={[styles.statCard, { backgroundColor: colors.success + '20' }]}>
                 <Ionicons name="calendar" size={normalize(24)} color={colors.success} />
                 <Text style={styles.statValue}>{dashboardData.todayAppointmentsCount}</Text>
@@ -238,9 +254,17 @@ const AdminDashboard = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   contentContainer: {
-    width: isTablet() ? '70%' : '100%',
+    width: '100%',
     alignSelf: 'center',
     paddingTop: spacing.lg,
+  },
+  contentContainerTablet: {
+    width: '85%',
+    maxWidth: 900,
+  },
+  contentContainerLandscape: {
+    width: '70%',
+    maxWidth: 1000,
   },
   statsContainer: {
     paddingHorizontal: spacing.md,
@@ -251,12 +275,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: spacing.md,
   },
+  statsRowTablet: {
+    gap: spacing.md,
+  },
   statCard: {
     flex: 0.48,
     backgroundColor: colors.card,
     borderRadius: normalize(16),
     padding: spacing.md,
     alignItems: 'center',
+    minHeight: normalize(100),
   },
   statValue: {
     fontSize: normalize(24),

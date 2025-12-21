@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import { colors, spacing } from '../styles/theme';
-import { normalize, isTablet } from '../utils/responsive';
+import { normalize } from '../utils/responsive';
 import PetraLogo from './PetraLogo';
 
 const AppHeader = ({ 
@@ -10,18 +10,36 @@ const AppHeader = ({
   subtitle = null,
   style = {} 
 }) => {
+  const { width } = useWindowDimensions();
+  const isTabletLayout = width >= 768;
+
   return (
     <View style={[styles.container, style]}>
-      <View style={styles.contentRow}>
+      <View style={[
+        styles.contentRow, 
+        isTabletLayout && styles.contentRowTablet
+      ]}>
         {showLogo && (
-          <View style={styles.logoContainer}>
-            <PetraLogo size="small" />
+          <View style={[
+            styles.logoContainer,
+            isTabletLayout && styles.logoContainerTablet
+          ]}>
+            <PetraLogo size={isTabletLayout ? "medium" : "small"} />
           </View>
         )}
         
-        <View style={styles.titleContainer}>
-          {title && <Text style={styles.title}>{title}</Text>}
-          {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+        <View style={[
+          styles.titleContainer,
+          isTabletLayout && styles.titleContainerTablet
+        ]}>
+          {title && <Text style={[
+            styles.title,
+            isTabletLayout && styles.titleTablet
+          ]}>{title}</Text>}
+          {subtitle && <Text style={[
+            styles.subtitle,
+            isTabletLayout && styles.subtitleTablet
+          ]}>{subtitle}</Text>}
         </View>
       </View>
     </View>
@@ -38,19 +56,29 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   contentRow: {
-    flexDirection: isTablet() ? 'row' : 'column',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
+  contentRowTablet: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.lg,
+  },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: isTablet() ? 0 : spacing.sm,
-    marginRight: isTablet() ? spacing.md : 0,
+    marginBottom: spacing.sm,
+  },
+  logoContainerTablet: {
+    marginBottom: 0,
+    marginRight: spacing.md,
   },
   titleContainer: {
     alignItems: 'center',
-    flex: isTablet() ? 1 : 0,
+    flex: 0,
+  },
+  titleContainerTablet: {
+    flex: 1,
   },
   title: {
     fontSize: normalize(24),
@@ -58,12 +86,18 @@ const styles = StyleSheet.create({
     color: colors.text,
     textAlign: 'center',
   },
+  titleTablet: {
+    fontSize: normalize(28),
+  },
   subtitle: {
     fontSize: normalize(16),
     fontWeight: '400',
     color: colors.textSecondary,
     textAlign: 'center',
     marginTop: spacing.xs,
+  },
+  subtitleTablet: {
+    fontSize: normalize(18),
   },
 });
 

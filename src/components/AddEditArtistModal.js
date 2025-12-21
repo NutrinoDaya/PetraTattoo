@@ -9,14 +9,20 @@ import {
   Modal,
   SafeAreaView,
   BackHandler,
+  useWindowDimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { dbService } from '../services/localTattooService';
 import CustomAlert from './CustomAlert';
 import { colors, spacing } from '../styles/theme';
-import { normalize, isTablet } from '../utils/responsive';
+import { normalize } from '../utils/responsive';
 
 const AddEditArtistModal = ({ visible, onClose, onSave, editingArtist = null }) => {
+  // Dynamic responsive values
+  const { width, height } = useWindowDimensions();
+  const isTabletLayout = width >= 768;
+  const isLandscape = width > height;
+
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -121,7 +127,7 @@ const AddEditArtistModal = ({ visible, onClose, onSave, editingArtist = null }) 
           <View style={{ width: normalize(40) }} />
         </View>
 
-        <View style={styles.contentContainer}>
+        <View style={[styles.contentContainer, isTabletLayout && styles.contentContainerTablet]}>
           <ScrollView style={styles.form} showsVerticalScrollIndicator={false}>
             <Text style={styles.label}>Full Name *</Text>
             <TextInput
@@ -227,8 +233,11 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    width: isTablet() ? '60%' : '100%',
+    width: '100%',
     alignSelf: 'center',
+  },
+  contentContainerTablet: {
+    width: '60%',
   },
   form: {
     flex: 1,

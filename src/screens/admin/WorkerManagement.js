@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   StyleSheet,
+  useWindowDimensions,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { dbService } from '../../services/localTattooService';
@@ -16,9 +17,13 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import AddEditArtistModal from '../../components/AddEditArtistModal';
 import AddEditClientModal from '../../components/AddEditClientModal';
 import CustomAlert from '../../components/CustomAlert';
-import { normalize, isTablet } from '../../utils/responsive';
+import { normalize } from '../../utils/responsive';
 
 const WorkerManagement = () => {
+  // Dynamic responsive values
+  const { width, height } = useWindowDimensions();
+  const isTabletLayout = width >= 768;
+  const isLandscape = width > height;
   const [activeTab, setActiveTab] = useState('artists'); // 'artists' or 'clients'
   const [workers, setWorkers] = useState([]);
   const [clients, setClients] = useState([]);
@@ -180,7 +185,10 @@ const WorkerManagement = () => {
         </TouchableOpacity>
       </View>
       
-      <View style={styles.contentContainer}>
+      <View style={[
+        styles.contentContainer,
+        isTabletLayout && styles.contentContainerTablet,
+      ]}>
         {activeTab === 'artists' ? (
           <>
             <TouchableOpacity
@@ -414,9 +422,13 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    width: isTablet() ? '70%' : '100%',
+    width: '100%',
     alignSelf: 'center',
     marginTop: spacing.md,
+  },
+  contentContainerTablet: {
+    width: '85%',
+    maxWidth: 900,
   },
   addButton: {
     marginHorizontal: spacing.lg,

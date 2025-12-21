@@ -11,15 +11,21 @@ import {
   FlatList,
   SafeAreaView,
   BackHandler,
+  useWindowDimensions,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomAlert from './CustomAlert';
 import { dbService } from '../services/localTattooService';
 import { emailService } from '../services/emailService';
 import { colors, spacing, typography } from '../styles/theme';
-import { normalize, isTablet } from '../utils/responsive';
+import { normalize } from '../utils/responsive';
 
 const NewAppointmentModal = ({ visible, onClose, onSave }) => {
+  // Dynamic responsive values
+  const { width, height } = useWindowDimensions();
+  const isTabletLayout = width >= 768;
+  const isLandscape = width > height;
+  
   const [formData, setFormData] = useState({
     client_id: '',
     worker_id: '',
@@ -46,6 +52,7 @@ const NewAppointmentModal = ({ visible, onClose, onSave }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', buttons: [] });
 
   useEffect(() => {
@@ -188,6 +195,9 @@ const NewAppointmentModal = ({ visible, onClose, onSave }) => {
   };
 
   const handleSave = async () => {
+    // Prevent duplicate submissions
+    if (saving) return;
+    
     if (!formData.client_id || !formData.worker_id || !formData.tattoo_type || !formData.price) {
       showCustomAlert('Validation Error', 'Please fill all required fields', [
         { text: 'OK', onPress: hideAlert }
@@ -196,6 +206,8 @@ const NewAppointmentModal = ({ visible, onClose, onSave }) => {
     }
 
     try {
+      setSaving(true);
+      
       // Calculate remaining amount if not already calculated
       const finalFormData = {
         ...formData,
@@ -246,6 +258,8 @@ const NewAppointmentModal = ({ visible, onClose, onSave }) => {
       showCustomAlert('Error', 'Failed to save appointment', [
         { text: 'OK', onPress: hideAlert }
       ]);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -291,7 +305,11 @@ const NewAppointmentModal = ({ visible, onClose, onSave }) => {
           <View style={{ width: 60 }} />
         </View>
 
-        <View style={styles.contentContainer}>
+        <View style={[
+          styles.contentContainer,
+          isTabletLayout && styles.contentContainerTablet,
+          isLandscape && isTabletLayout && styles.contentContainerLandscape,
+        ]}>
           <ScrollView style={styles.form} contentContainerStyle={{ paddingBottom: spacing.xl }}>
             {/* Client Selection */}
             <Text style={styles.label}>Select Client *</Text>
@@ -409,8 +427,19 @@ const NewAppointmentModal = ({ visible, onClose, onSave }) => {
             />
 
             {/* Save Button */}
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.saveButtonText}>📅 Schedule Appointment</Text>
+            <TouchableOpacity 
+              style={[styles.saveButton, saving && styles.saveButtonDisabled]} 
+              onPress={handleSave}
+              disabled={saving}
+            >
+              {saving ? (
+                <View style={styles.savingContainer}>
+                  <ActivityIndicator size="small" color={colors.surface} />
+                  <Text style={styles.saveButtonText}>  Scheduling...</Text>
+                </View>
+              ) : (
+                <Text style={styles.saveButtonText}>📅 Schedule Appointment</Text>
+              )}
             </TouchableOpacity>
 
             <View style={{ height: 20 }} />
@@ -510,9 +539,15 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    width: isTablet() ? '70%' : '100%',
+    width: '100%',
     alignSelf: 'center',
     maxWidth: 800,
+  },
+  contentContainerTablet: {
+    width: '70%',
+  },
+  contentContainerLandscape: {
+    width: '50%',
   },
   header: {
     flexDirection: 'row',
@@ -579,10 +614,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: spacing.lg,
   },
+  saveButtonDisabled: {
+    opacity: 0.7,
+  },
   saveButtonText: {
     color: '#000',
     fontSize: normalize(16),
     fontWeight: '700',
+  },
+  savingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pickerContainer: {
     flex: 1,

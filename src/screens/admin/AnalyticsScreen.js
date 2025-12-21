@@ -7,12 +7,17 @@ import {
   SafeAreaView,
   RefreshControl,
   ActivityIndicator,
+  useWindowDimensions,
 } from 'react-native';
 import { dbService } from '../../services/localTattooService';
 import { colors, spacing } from '../../styles/theme';
-import { normalize, isTablet } from '../../utils/responsive';
+import { normalize } from '../../utils/responsive';
 
 const AnalyticsScreen = ({ refreshTrigger }) => {
+  // Dynamic responsive values
+  const { width, height } = useWindowDimensions();
+  const isTabletLayout = width >= 768;
+  const isLandscape = width > height;
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -77,7 +82,7 @@ const AnalyticsScreen = ({ refreshTrigger }) => {
       >
         <Text style={styles.screenTitle}>📊 Analytics Dashboard</Text>
 
-        <View style={styles.contentContainer}>
+        <View style={[styles.contentContainer, isTabletLayout && styles.contentContainerTablet]}>
           {/* Revenue Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>💰 Revenue</Text>
@@ -156,8 +161,12 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   contentContainer: {
-    width: isTablet() ? '70%' : '100%',
+    width: '100%',
     alignSelf: 'center',
+  },
+  contentContainerTablet: {
+    width: '85%',
+    maxWidth: 900,
   },
   loadingContainer: {
     flex: 1,
