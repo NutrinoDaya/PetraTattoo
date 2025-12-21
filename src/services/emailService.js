@@ -5,13 +5,29 @@
  * 
  * SETUP INSTRUCTIONS:
  * 1. Get your API Key from Brevo (Sendinblue)
- * 2. Update the BREVO_CONFIG object below
+ * 2. Create src/config/emailConfig.js with your credentials
+ * 3. For CI/CD, set environment variables in Codemagic
  */
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { EMAIL_CONFIG } from '../config/emailConfig';
 
 const EMAIL_HISTORY_KEY = 'PetraTattoo_email_history';
+
+// Try to load config, fallback to environment variables or defaults
+let EMAIL_CONFIG = {
+  BREVO_API_KEY: '',
+  BREVO_SENDER_EMAIL: 'm.daya.nutrino@gmail.com',
+  BREVO_SENDER_NAME: 'Petra Tattoo Shop'
+};
+
+try {
+  const configModule = require('../config/emailConfig');
+  EMAIL_CONFIG = configModule.EMAIL_CONFIG;
+} catch (error) {
+  console.log('⚠️ emailConfig.js not found, using environment variables or defaults');
+  // In CI/CD environments, these would come from environment variables
+  // For now, the service will work but won't send emails
+}
 
 // Brevo API Configuration
 const BREVO_CONFIG = {

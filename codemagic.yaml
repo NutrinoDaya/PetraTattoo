@@ -29,6 +29,23 @@ workflows:
       - name: Install npm dependencies
         script: |
           npm install --legacy-peer-deps
+      - name: Create email config for build
+        script: |
+          # Create the config directory if it doesn't exist
+          mkdir -p src/config
+          
+          # Create emailConfig.js with placeholder values (emails won't work in CI but app will build)
+          cat > src/config/emailConfig.js << 'EOF'
+          // Auto-generated for CI/CD builds
+          // Email functionality will be disabled without proper API key
+          export const EMAIL_CONFIG = {
+            BREVO_API_KEY: '',
+            BREVO_SENDER_EMAIL: 'm.daya.nutrino@gmail.com',
+            BREVO_SENDER_NAME: 'Petra Tattoo Shop'
+          };
+          EOF
+          
+          echo "Email config created for build"
       - name: Install CocoaPods dependencies
         script: |
           cd ios
