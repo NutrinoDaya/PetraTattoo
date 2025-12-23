@@ -16,7 +16,7 @@ const EMAIL_HISTORY_KEY = 'PetraTattoo_email_history';
 // Try to load config, fallback to environment variables or defaults
 let EMAIL_CONFIG = {
   BREVO_API_KEY: '',
-  BREVO_SENDER_EMAIL: 'm.daya.nutrino@gmail.com',
+  BREVO_SENDER_EMAIL: 'petratatoo@gmail.com',
   BREVO_SENDER_NAME: 'Petra Tattoo Shop'
 };
 
